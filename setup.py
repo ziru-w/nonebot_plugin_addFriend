@@ -7,7 +7,7 @@ setup(
     name="nonebot_plugin_addFriend",
     version="1.0.0",
     author="wk",
-    description="A plugin based on NoneBot2 to process QQ friends and QQ group join requests.",
+    description="A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ziru-w/nonebot_plugin_addFriend",
