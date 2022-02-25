@@ -1,8 +1,8 @@
 # nonebot_plugin_addFriend
-一个基于NoneBot2的插件，用于处理请求加QQ好友和QQ请求
+一个基于NoneBot2的插件，用于处理被请求加QQ好友和QQ群的请求
 
 
-A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests
+A plug-in based on nonebot2, which is used to process the request to add QQ friends and QQ groups
 
 
 下载方法 pip install nonebot_plugin_addFriend
