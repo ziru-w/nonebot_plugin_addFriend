@@ -8,8 +8,10 @@
 import datetime
 import os
 import re
+from time import sleep
 from nonebot import on_command
-from nonebot.adapters.onebot.v11 import Bot,  MessageEvent,RequestEvent,FriendRequestEvent,GroupRequestEvent
+from nonebot.adapters.onebot.v11 import Bot,  MessageEvent, MessageSegment,RequestEvent, GroupDecreaseNoticeEvent,FriendRequestEvent,GroupRequestEvent
+from nonebot.typing import T_State
 from nonebot.message import event_preprocessor
 from os.path import dirname
 
@@ -20,13 +22,23 @@ max=6
 
 @event_preprocessor
 async def _(bot: Bot, event: RequestEvent):
-    if not isinstance(event,FriendRequestEvent) and not isinstance(event,GroupRequestEvent):
+    if isinstance(event,FriendRequestEvent):
+        notice_msg='请求添加好友,验证消息为'
+        welcome_msg='我未知的的朋友啊，很高兴你添加我为qq好友哦！\n同时，如果有疑问，可以发送/help哦，包括添加课表的方式哦'
+    elif isinstance(event,GroupRequestEvent):
+        if event.sub_type!='invite':
+            print(event.sub_type)
+            return
+        print(event.sub_type)
+        notice_msg='发送群邀请,验证消息为'
+        welcome_msg='我未知的的朋友啊，很高兴你邀请我哦！'
+    else:
         return
     uid = str(event.user_id)
-    await bot.send_private_msg(user_id=1515945392, message=uid+'发送好友请求,验证消息为'+event.comment)
+    await bot.send_private_msg(user_id=1515945392, message=uid+notice_msg+event.comment)
     num,now,old=read_data()
-    if num>max and now.day-old.day==0:
-        await bot.send_private_msg(user_id=1515945392, message=uid+'发送好友请求,但已日增5人,验证消息为'+event.comment)
+    if num>max and (now.date()-old.date()).days==0:
+        await bot.send_private_msg(user_id=1515945392, message=uid+notice_msg+event.comment+'但已日增5人')
     else:
         await event.approve(bot)
         if now.day-old.day!=0:
@@ -36,13 +48,16 @@ async def _(bot: Bot, event: RequestEvent):
         with open(path,'w',encoding='utf-8') as fp:
             fp.write(str(num)+','+str(now))    
         await bot.send_private_msg(user_id=1515945392, message=uid+'添加成功')
+        
+        sleep(1.5)
+        await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
 
 @FriendAdd.handle()
 async def _(bot: Bot, event: MessageEvent):
     if event.user_id!=1515945392:
         await FriendAdd.finish('无权限')
     num,now,old=read_data()
-    if num<max and now.day-old.day==0:
+    if num<max and (now.date()-old.date()).days==0:
         await FriendAdd.send(message='未日增5人,人数为'+str(num)+'上次添加时间'+str(now))
     if '为' in event.get_plaintext():
         plaintext=re.findall('[0-9]',event.get_plaintext())
