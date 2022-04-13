@@ -14,11 +14,12 @@ from nonebot.adapters.onebot.v11 import Bot,  MessageEvent, MessageSegment,Reque
 from nonebot.typing import T_State
 from nonebot.message import event_preprocessor
 from os.path import dirname
+from nonebot.permission import SUPERUSER
 
 FriendAdd = on_command("重置好友请求")
 dir = dirname(__file__) + "/"
 path=dir+'num.txt'
-max=6
+max=4
 
 @event_preprocessor
 async def _(bot: Bot, event: RequestEvent):
@@ -35,10 +36,10 @@ async def _(bot: Bot, event: RequestEvent):
     else:
         return
     uid = str(event.user_id)
-    await bot.send_private_msg(user_id=1515945392, message=uid+notice_msg+event.comment)
+    await bot.send_private_msg(user_id=SUPERUSER[0], message=uid+notice_msg+event.comment)
     num,now,old=read_data()
     if num>max and (now.date()-old.date()).days==0:
-        await bot.send_private_msg(user_id=1515945392, message=uid+notice_msg+event.comment+'但已日增5人')
+        await bot.send_private_msg(user_id=SUPERUSER[0], message=uid+notice_msg+event.comment+'但已日增5人')
     else:
         await event.approve(bot)
         if now.day-old.day!=0:
@@ -47,14 +48,14 @@ async def _(bot: Bot, event: RequestEvent):
             num+=1
         with open(path,'w',encoding='utf-8') as fp:
             fp.write(str(num)+','+str(now))    
-        await bot.send_private_msg(user_id=1515945392, message=uid+'添加成功')
+        await bot.send_private_msg(user_id=SUPERUSER[0], message=uid+'添加成功')
         
         sleep(1.5)
         await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
 
 @FriendAdd.handle()
 async def _(bot: Bot, event: MessageEvent):
-    if event.user_id!=1515945392:
+    if event.user_id!=SUPERUSER[0]:
         await FriendAdd.finish('无权限')
     num,now,old=read_data()
     if num<max and (now.date()-old.date()).days==0:
