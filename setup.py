@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nonebot_plugin_addFriend",
-    version="1.0.0",
+    version="1.0.2",
     author="wk",
     description="A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests.",
     long_description=long_description,
@@ -14,6 +14,7 @@ setup(
     project_urls={
         "Bug Tracker": "https://github.com/ziru-w/nonebot_plugin_addFriend/issues",
     },
+    install_requires=['requests==2.27.1'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
