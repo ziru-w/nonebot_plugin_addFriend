@@ -53,6 +53,7 @@ async def _(bot: Bot, event: RequestEvent):
         sleep(1.5)
         await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
 
+        
 @FriendAdd.handle()
 async def _(bot: Bot, event: MessageEvent):
     if event.user_id!=superuser:
@@ -73,7 +74,6 @@ async def _(bot: Bot, event: MessageEvent):
     await FriendAdd.finish('重置成功')
 
 
-
 def read_data():
     global num,now,old
     if not os.path.exists(path):
@@ -89,4 +89,3 @@ def read_data():
     old=datetime.datetime.strptime(data_list[1], "%Y-%m-%d %H:%M:%S.%f")
     now = datetime.datetime.now()
     return num,now,old
-
