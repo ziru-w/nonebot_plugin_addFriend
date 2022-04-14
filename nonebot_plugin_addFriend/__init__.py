@@ -15,7 +15,7 @@ from nonebot.typing import T_State
 from nonebot.message import event_preprocessor
 from os.path import dirname
 from nonebot import get_driver
-superuser=list(get_driver().config.superusers)[0]
+superuser=int(list(get_driver().config.superusers)[0])
 FriendAdd = on_command("重置好友请求")
 dir = dirname(__file__) + "/"
 path=dir+'num.txt'
