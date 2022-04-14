@@ -14,8 +14,8 @@ from nonebot.adapters.onebot.v11 import Bot,  MessageEvent, MessageSegment,Reque
 from nonebot.typing import T_State
 from nonebot.message import event_preprocessor
 from os.path import dirname
-from nonebot.permission import SUPERUSER
-superuser=int(SUPERUSER[0])
+from nonebot import get_driver
+superuser=list(get_driver().config.superusers)[0]
 FriendAdd = on_command("重置好友请求")
 dir = dirname(__file__) + "/"
 path=dir+'num.txt'
