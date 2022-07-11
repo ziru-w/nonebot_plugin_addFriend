@@ -1,14 +1,14 @@
 # python3
 # -*- coding: utf-8 -*-
 # @Time    : 2021/2/15 16:49
-# @Author  : wk
+# @Author  : wziru
 # @File    : __init__.py.py
 # @Software: PyCharm
 import datetime
 import json
 import os
 import re
-from time import sleep
+from asyncio import sleep
 from os.path import dirname,exists
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Bot,  MessageEvent, MessageSegment,RequestEvent, FriendRequestEvent,GroupRequestEvent
@@ -73,7 +73,7 @@ async def _(bot: Bot, event: RequestEvent):
         with open(numPath,'w',encoding='utf-8') as fp:
             fp.write(str(num)+','+str(now))  
         await sendMsg(bot,config['recipientList'],id+notice_msg+event.comment+'\n'+staus,0)
-        sleep(1.5)
+        await sleep(1.5)
         await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
 
 async def getFriendList(bot:Bot,op=0):
@@ -94,7 +94,7 @@ addFriend = on_command("同意加",aliases={'拒绝加','查看加'})
 async def _(bot: Bot, event: MessageEvent):
     if event.get_user_id() not in config['recipientList']:
         await addFriend.finish('无权限')
-    text=event.get_plaintext()
+    text=event.get_plaintext().strip()
     op=text[1:3]
     if op=='同意':
         approve=True
@@ -154,7 +154,7 @@ async def _(bot: Bot, event: MessageEvent):
     # await sendMsg(bot,config['recipientList'],resMsg,0)
     if staus!='已经添加成功，勿复添加':
         # 等待腾讯数据更新
-        sleep(1.5)
+        await sleep(1.5)
         welcome_msg=config[msgType][1]
         await bot.send_private_msg(user_id=requestorId, message=welcome_msg)
     
@@ -175,7 +175,7 @@ async def sendMsg(bot:Bot,recipientList,msg:str,op=0):
 reFriendReqNum = on_command("重置好友请求",aliases={"更改自动同意"},permission=SUPERUSER)
 @reFriendReqNum.handle()
 async def _(bot: Bot, event: MessageEvent):
-    text=event.get_plaintext()
+    text=event.get_plaintext().strip()
     if "更改自动同意" in text:
         text=text[7:].strip()
         if text.isdigit():
@@ -188,13 +188,13 @@ async def _(bot: Bot, event: MessageEvent):
         with open(configPath,'w',encoding='utf-8') as fp:
             json.dump(config,fp,ensure_ascii=False)
         await reFriendReqNum.finish('更改成功,为{}'.format(config['agreeAutoApprove']))
-        return
+
     max=config['maxNum']
     num,now,old=read_data()
     if num<max and (now.date()-old.date()).days==0:
         await reFriendReqNum.send(message='未日增{}人,人数为{}上次添加时间{}'.format(max,num,now))
-    if '为' in event.get_plaintext():
-        plaintext=re.findall('[0-9]',event.get_plaintext())
+    if '为' in text:
+        plaintext=re.findall('[0-9]',text)
         if len(plaintext)==0:
             num='0'
         else:
@@ -213,7 +213,7 @@ async def _(bot: Bot, event: MessageEvent):
     for a in friend_tem:
         friend_list.append(a['user_id'])
     print(friend_list)
-    text=event.get_plaintext()
+    text=event.get_plaintext().strip()
     op=text[1:3]
     recipient=text[3:].replace('请求接收者','').replace(' ','')
     if recipient=='':
@@ -247,4 +247,3 @@ def read_data():
     old=datetime.datetime.strptime(data_list[1], "%Y-%m-%d %H:%M:%S.%f")
     now = datetime.datetime.now()
     return num,now,old
-
