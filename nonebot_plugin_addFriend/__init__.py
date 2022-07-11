@@ -37,10 +37,19 @@ with open(configPath,'r',encoding='utf-8') as fp:
     config=json.loads(fp.read())
 @event_preprocessor
 async def _(bot: Bot, event: RequestEvent):
+    max=config['maxNum']
+    staus='但已日增{}人,未能再自动添加'.format(max)
     if isinstance(event,FriendRequestEvent):
         notice_msg=config["friend_msg"][0]
         welcome_msg=config["friend_msg"][1]
         id = str(event.user_id)
+        await sleep(1.5)
+        groupList=await getFriendList(bot,1)
+        if id in groupList:
+            staus='或因群人数少,已经添加成功'
+            await sendMsg(bot,config['recipientList'],id+notice_msg+event.comment+'\n'+staus,0)
+            await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
+            return
     elif isinstance(event,GroupRequestEvent):
         if event.sub_type!='invite':
             print(event.sub_type)
@@ -49,12 +58,17 @@ async def _(bot: Bot, event: RequestEvent):
         notice_msg=config["group_msg"][0]
         welcome_msg=config["group_msg"][1]
         id = str(event.group_id)
+        await sleep(1.5)
+        friendList=await getFriendList(bot,0)
+        if id in friendList:
+            staus='或因群人数少,已经添加成功'
+            await sendMsg(bot,config['recipientList'],id+notice_msg+event.comment+'\n'+staus,0)
+            await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
+            return
     else:
         return
     
     num,now,old=read_data()
-    max=config['maxNum']
-    staus='但已日增{}人,未能再自动添加'.format(max)
     if config['agreeAutoApprove']==0:
         staus='是否同意'
     if config['agreeAutoApprove']==0 or (num>=max and (now.date()-old.date()).days==0):
@@ -247,3 +261,29 @@ def read_data():
     old=datetime.datetime.strptime(data_list[1], "%Y-%m-%d %H:%M:%S.%f")
     now = datetime.datetime.now()
     return num,now,old
+
+
+
+
+def parseTimeInterval(old='2022-06-21 20:57',now='',op='int'):
+    if isinstance(old,str):
+        old=datetime.datetime.strptime(old, "%Y-%m-%d %H:%M")
+    if now=='':
+        now=datetime.datetime.now()
+    elif isinstance(now,str):
+        now=datetime.datetime.strptime(now, "%Y-%m-%d %H:%M")
+    symbol=1
+    if now.date()<=old.date():
+        temp=datetime.datetime.strptime(str(now.date()), "%Y-%m-%d")
+        if (now-temp).seconds<(old-temp).seconds:
+            temp=old
+            old=now
+            now=temp
+            symbol=-1  
+    interval=now-old
+    days=interval.days
+    seconds=interval.seconds
+    if op=='int':
+        return (days*3600*24+seconds)*symbol
+    else:
+        return {'days':days*3600*24*symbol,'seconds':seconds*symbol}
