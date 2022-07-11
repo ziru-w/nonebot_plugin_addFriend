@@ -43,13 +43,6 @@ async def _(bot: Bot, event: RequestEvent):
         notice_msg=config["friend_msg"][0]
         welcome_msg=config["friend_msg"][1]
         id = str(event.user_id)
-        await sleep(1.5)
-        groupList=await getFriendList(bot,1)
-        if id in groupList:
-            staus='或因群人数少,已经添加成功'
-            await sendMsg(bot,config['recipientList'],id+notice_msg+event.comment+'\n'+staus,0)
-            await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
-            return
     elif isinstance(event,GroupRequestEvent):
         if event.sub_type!='invite':
             print(event.sub_type)
@@ -58,11 +51,11 @@ async def _(bot: Bot, event: RequestEvent):
         notice_msg=config["group_msg"][0]
         welcome_msg=config["group_msg"][1]
         id = str(event.group_id)
-        await sleep(1.5)
-        friendList=await getFriendList(bot,0)
-        if id in friendList:
+        await sleep(2.5)
+        groupList=await getFriendList(bot,1)
+        if id in groupList:
             staus='或因群人数少,已经添加成功'
-            await sendMsg(bot,config['recipientList'],id+notice_msg+event.comment+'\n'+staus,0)
+            await sendMsg(bot,config['recipientList'],'群号'+id+'，'+event.get_user_id()+notice_msg+event.comment+'\n'+staus,0)
             await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
             return
     else:
@@ -135,10 +128,10 @@ async def _(bot: Bot, event: MessageEvent):
     flag=config["requestorDict"][QQOrGroupId]['flag']
     notice_msg=config["requestorDict"][QQOrGroupId]['notice_msg']
     comment=config["requestorDict"][QQOrGroupId]['comment']
-    
-    resMsg=QQOrGroupId+notice_msg+comment+'\n'
+    requestorId=config["requestorDict"][QQOrGroupId]['user_id']
     # 参数设置完毕，开始处理请求
     if notice_msg==config['group_msg'][0]:
+        resMsg='群号'+QQOrGroupId+'，'+requestorId+notice_msg+comment+'\n'
         msgType='group_msg'
         groupList=await getFriendList(bot,1)
         if QQOrGroupId in groupList:
@@ -146,6 +139,7 @@ async def _(bot: Bot, event: MessageEvent):
         else:
             await bot.set_group_add_request(flag=flag,approve=approve)
     else:
+        resMsg=QQOrGroupId+notice_msg+comment+'\n'
         msgType='friend_msg'
         friendList=await getFriendList(bot,0)
         if QQOrGroupId in friendList:
@@ -157,11 +151,10 @@ async def _(bot: Bot, event: MessageEvent):
             else:
                 await bot.set_friend_add_request(flag=flag,approve=approve)
     # 请求处理完毕，开始更易数据
-    requestorId=config["requestorDict"][QQOrGroupId]['user_id']
     del config["requestorDict"][QQOrGroupId]
-
     with open(configPath,'w',encoding='utf-8') as fp:
         json.dump(config,fp,ensure_ascii=False)
+    
     resMsg+=staus
     # 数据更易完毕，开始用户交互，返回结果，发送欢迎
     await bot.send_private_msg(user_id=event.user_id, message=resMsg)
