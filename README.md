@@ -7,7 +7,9 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
 下载方法 pip install nonebot_plugin_addFriend
 
-1.该插件运行后会检查配置文件是否存在，并生成默认配置，也可手动复制内容创建文件，创建路径为插件目录，文件名为config.json,其中.json为后缀名，表征文件类型，请不要创建为config.json.json文件
+1.该插件运行后会检查配置文件是否存在，并生成默认配置，也可手动复制内容创建文件，创建路径为插件目录，文件名为config.json,其中.json为后缀名，表征文件类型，请不要创建为config.json.json文件，
+
+命令起始符列表最好不要是空的，起始符最好长度都一样，不一样请更改parseDifferentCommandStart()函数以调和统一不一样的命令起始符，因为我用的切片去除起始符，闲了看看别人咋处理的，欸嘿
 
 2.可自行设置是否同意自动加好友，命令为/更改自动同意群聊 1或0、/更改自动同意好友 1或0、/更改自动同意 1或0 1或0
 

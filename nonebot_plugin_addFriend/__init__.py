@@ -52,7 +52,10 @@ def commandStartList(n=1)->list:
     command_start=list(get_driver().config.command_start)[:n]
     return command_start
 def parseDifferentCommandStart(text):
-    lenght=len(commandStartList()[0])
+    if len(commandStartList())==0:
+        lenght=0
+    else:
+        lenght=len(commandStartList()[0])
     if lenght==0:
         text='/'+text
     else:
