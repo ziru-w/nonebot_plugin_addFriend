@@ -24,7 +24,7 @@ if not exists(configPath):
     recipientList=list(get_driver().config.superusers)
     # recipients=str(recipients)[1:-1].replace(' ','').replace("'",'')
     config={
-        "agreeAutoApprove": { "qq": 1, "group": 0 },
+        "agreeAutoApprove": { "friend": 1, "group": 0 },
         "maxNum": 5,
         "maxViewNum":20,
         "recipientList": recipientList[:2],
@@ -35,7 +35,7 @@ if not exists(configPath):
         },
         "group_msg": {
             "notice_msg": "发送群邀请,验证消息为",
-            "welcome_msg": "我未知的的朋友啊，很高兴你邀请我哦！"
+            "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
         }
     }
     with open(configPath,'w',encoding='utf-8') as fp:
@@ -49,13 +49,15 @@ with open(configPath,'r',encoding='utf-8') as fp:
 with open(requestorPath,'r',encoding='utf-8') as fp:
     requestorDict=json.loads(fp.read())
 def commandStartList(n=1)->list:
-    command_start=list(get_driver().config.command_start)[:n]
-    return command_start
-def parseDifferentCommandStart(text):
-    if len(commandStartList())==0:
-        lenght=0
+    command_start=list(get_driver().config.command_start)
+    if len(command_start)==0:
+        command_start=['']
     else:
-        lenght=len(commandStartList()[0])
+        command_start=command_start[:n]
+    return command_start
+    
+def parseDifferentCommandStart(text):
+    lenght=len(commandStartList()[0])
     if lenght==0:
         text='/'+text
     else:
@@ -71,7 +73,7 @@ async def _(bot: Bot, event: RequestEvent):
         notice_msg=config["friend_msg"]["notice_msg"]
         welcome_msg=config["friend_msg"]["welcome_msg"]
         id = str(event.user_id)
-        autoType='qq'
+        autoType='friend'
         agreeAutoApprove=config['agreeAutoApprove'][autoType]
     elif isinstance(event,GroupRequestEvent):
         if event.sub_type!='invite':
@@ -83,9 +85,8 @@ async def _(bot: Bot, event: RequestEvent):
         id = str(event.group_id)
         autoType='group'
         agreeAutoApprove=config['agreeAutoApprove'][autoType]
-        groupList=await getFriendList(bot,1)
-        # 没啥用，群列表还是没更新
-        await sleep(1.5)
+        await sleep(0.5)
+        groupList=await getReferIdList(bot)
         if int(id) in groupList:
             staus='或因群人数少,已经添加成功'
             await sendMsg(bot,config['recipientList'],'群号'+id+'，'+event.get_user_id()+notice_msg+event.comment+'\n'+staus,0)
@@ -116,17 +117,16 @@ async def _(bot: Bot, event: RequestEvent):
         await sleep(1.5)
         await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
 
-async def getFriendList(bot:Bot,op=0):
-    if op==0:
-        idName='user_id'
-        friendInfoList=await bot.get_friend_list()
+async def getReferIdList(bot:Bot,idName='group_id',no_cache=True):
+    if idName=='user_id':
+        referInfoList=await bot.get_friend_list(no_cache=no_cache)
     else:
         idName='group_id'
-        friendInfoList=await bot.get_group_list()
-    friend_list=[]
-    for temp in friendInfoList:
-        friend_list.append(temp[idName])
-    return friend_list
+        referInfoList=await bot.get_group_list(no_cache=no_cache)
+    referIdList=[]
+    for temp in referInfoList:
+        referIdList.append(temp[idName])
+    return referIdList
 
 
 againReadConfig= on_command("重载配置",aliases={"更改自动同意","更改最大日加好友数量","更改查看加返回数量"},permission=SUPERUSER)
@@ -145,7 +145,7 @@ async def _(bot: Bot, event: MessageEvent):
             autoType='group'
         elif '好友' in text:
             text=text.replace('好友','').strip()
-            autoType='qq'
+            autoType='friend'
         else:
             autoType='all'
         if text.isdigit() and autoType!='all':
@@ -235,7 +235,7 @@ async def _(bot: Bot, event: MessageEvent):
     if notice_msg==config['group_msg']['notice_msg']:
         resMsg='群号'+QQOrGroupId+'，'+requestorId+notice_msg+comment+'\n'
         msgType='group_msg'
-        groupList=await getFriendList(bot,1)
+        groupList=await getReferIdList(bot)
         if QQOrGroupId in groupList:
             staus='已经添加成功，勿复添加'
         else:
@@ -243,7 +243,7 @@ async def _(bot: Bot, event: MessageEvent):
     else:
         resMsg=QQOrGroupId+notice_msg+comment+'\n'
         msgType='friend_msg'
-        friendList=await getFriendList(bot,0)
+        friendList=await getReferIdList(bot,'user_id')
         if QQOrGroupId in friendList:
             staus='已经添加成功，勿复添加'
         else:
@@ -305,11 +305,7 @@ async def _(bot: Bot, event: MessageEvent):
 addRecipient = on_command("添加请求接收者",aliases={"删除请求接收者"},permission=SUPERUSER)
 @addRecipient.handle()
 async def _(bot: Bot, event: MessageEvent):
-    friend_tem=await bot.get_friend_list()
-    friend_list=[]
-    for a in friend_tem:
-        friend_list.append(a['user_id'])
-    print(friend_list)
+    friend_list=await getReferIdList(bot,'user_id')
     text=event.get_plaintext().strip()
     text=parseDifferentCommandStart(text)
     op=text[1:3]

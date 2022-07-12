@@ -26,7 +26,7 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 配置项结构
 
 {
-    "agreeAutoApprove": { "qq": 1, "group": 0 },
+    "agreeAutoApprove": { "friend": 1, "group": 0 },
     "maxNum": 5,
     "maxViewNum":20,
     "recipientList": [],
@@ -37,6 +37,6 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
     },
     "group_msg": {
         "notice_msg": "发送群邀请,验证消息为",
-        "welcome_msg": "我未知的的朋友啊，很高兴你邀请我哦！"
+        "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
     }
 }
