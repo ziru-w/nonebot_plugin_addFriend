@@ -51,9 +51,10 @@ async def _(bot: Bot, event: RequestEvent):
         notice_msg=config["group_msg"][0]
         welcome_msg=config["group_msg"][1]
         id = str(event.group_id)
-        await sleep(2.5)
         groupList=await getFriendList(bot,1)
-        if id in groupList:
+        # 没啥用，群列表还是没更新
+        await sleep(1.5)
+        if int(id) in groupList:
             staus='或因群人数少,已经添加成功'
             await sendMsg(bot,config['recipientList'],'群号'+id+'，'+event.get_user_id()+notice_msg+event.comment+'\n'+staus,0)
             await bot.send_private_msg(user_id=event.user_id, message=welcome_msg)
