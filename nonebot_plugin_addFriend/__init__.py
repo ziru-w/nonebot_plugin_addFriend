@@ -233,7 +233,7 @@ async def _(bot: Bot, event: MessageEvent):
     requestorId=requestorDict[QQOrGroupId]['requestorId']
     # 参数设置完毕，开始处理请求
     if notice_msg==config['group_msg']['notice_msg']:
-        resMsg='群号'+QQOrGroupId+'，'+requestorId+notice_msg+comment+'\n'
+        resMsg='群号{}，邀请者{}'.format(QQOrGroupId,requestorId)+notice_msg+comment+'\n'
         msgType='group_msg'
         groupList=await getReferIdList(bot)
         if QQOrGroupId in groupList:
