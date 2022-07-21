@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nonebot_plugin_addFriend",
-    version="2.2.2",
+    version="2.2.3",
     author="wziru",
     description="A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests.",
     long_description=long_description,
