@@ -268,12 +268,11 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
         await addRecipient.finish('不是{}的好友或者格式错误'.format(config['botName']))
    
 
-
+#以下都可以注释掉，或许不需要的功能
 groupNumNoticeList=config["groupNumNoticeList"]
 
 @event_preprocessor
-async def groupNumNoticeEvent(bot:Bot,event: GroupIncreaseNoticeEvent):
-    print(type(event))
+async def groupNumNoticeEvent(bot:Bot,event: NoticeEvent):
     if isinstance(event, GroupIncreaseNoticeEvent): 
         gid=event.group_id
         uid=event.user_id     
@@ -302,9 +301,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
         json.dump(config,fp,ensure_ascii=False)
     await addGroupNumNoticeList.send(msg)
 
-
-@event_preprocessor
-async def sendPrivate(bot:Bot,event: PrivateMessageEvent):
-    if event.get_user_id() not in config['recipientList']:
-        plaintext=event.get_message()
-        await bot.send_private_msg(user_id=int(config['recipientList'][0]),message='叮~小小私聊消息\nqq:{}\n昵称:{}\n消息:{}'.format(event.user_id,event.sender.nickname,plaintext),auto_escape=False)
+# # 私聊转发
+# @event_preprocessor
+# async def sendPrivate(bot:Bot,event: PrivateMessageEvent):
+#     if event.get_user_id() not in config['recipientList']:
+#         plaintext=event.get_message()
+#         await bot.send_private_msg(user_id=int(config['recipientList'][0]),message='叮~私聊消息\nqq:{}\n昵称:{}\n消息:{}'.format(event.user_id,event.sender.nickname,plaintext),auto_escape=False)
