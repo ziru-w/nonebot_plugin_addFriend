@@ -273,7 +273,7 @@ groupNumNoticeList=config["groupNumNoticeList"]
 
 @event_preprocessor
 async def groupNumNoticeEvent(bot:Bot,event: NoticeEvent):
-    if isinstance(event, GroupIncreaseNoticeEvent): 
+    if isinstance(event, GroupIncreaseNoticeEvent) or isinstance(event, GroupDecreaseNoticeEvent): 
         gid=event.group_id
         uid=event.user_id     
         message=''
