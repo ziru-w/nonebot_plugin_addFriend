@@ -251,7 +251,6 @@ addRecipient = on_command("添加请求接收者",aliases={"删除请求接收�
 @addRecipient.handle()
 async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     friend_list=await getReferIdList(bot,'user_id')
-    print(friend_list)
     text=event.get_plaintext().strip()
     argsText=args.extract_plain_text()
     recipient=argsText
@@ -298,15 +297,7 @@ addGroupNumNoticeList = on_command("设置群成员更易通知",block=True,perm
 @addGroupNumNoticeList.handle()
 async def _(bot: Bot, event: GroupMessageEvent,args:Message=CommandArg()):
     gid=event.group_id
-    args=args.extract_plain_text()
     msg=''
-    groupList=getReferIdList(bot)
-    if args!='' and str(args).isdigit() and int(args) not in groupList:
-        msg='输入非法！空？非数字?非机器人群聊？'
-        await addGroupNumNoticeList.finish(msg)
-    if args!='':
-        msg+=args
-        gid=int(args)
     if gid not in groupMemberNumNoticeList:
         groupMemberNumNoticeList.append(gid)
         msg+='开启成功哦'
