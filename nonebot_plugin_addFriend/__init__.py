@@ -10,6 +10,7 @@ import json
 import re
 from asyncio import sleep
 from os.path import dirname,exists
+from typing import Union
 from nonebot import on_command,on_request,on_notice
 from nonebot.adapters.onebot.v11 import Bot,  MessageEvent,PrivateMessageEvent,GroupMessageEvent, MessageSegment,RequestEvent,GroupRequestEvent, FriendRequestEvent,NoticeEvent,GroupDecreaseNoticeEvent,GroupIncreaseNoticeEvent
 from nonebot.message import event_preprocessor
@@ -251,6 +252,7 @@ addRecipient = on_command("添加请求接收者",aliases={"删除请求接收�
 @addRecipient.handle()
 async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     friend_list=await getReferIdList(bot,'user_id')
+    # print(friend_list)
     text=event.get_plaintext().strip()
     argsText=args.extract_plain_text()
     recipient=argsText
@@ -273,36 +275,45 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
    
 
 
-groupMemberNumNoticeList=config["groupMemberNumNoticeList"]
-groupMemberNumNotice = on_notice(priority=1, block=True)
+
+groupMemberNumNotice = on_notice(priority=10,block=True)
 @groupMemberNumNotice.handle()
-async def _(bot: Bot, event: NoticeEvent):
+async def _(bot: Bot, event: Union[GroupIncreaseNoticeEvent, GroupDecreaseNoticeEvent]):
     print(type(event))
-    if isinstance(event, GroupIncreaseNoticeEvent) or isinstance(event,GroupDecreaseNoticeEvent): 
-        gid=event.group_id
-        uid=event.user_id     
-        message=''
-        if isinstance(event, GroupIncreaseNoticeEvent):        
-            if gid in groupMemberNumNoticeList:
-                message=MessageSegment.at(uid)+MessageSegment.text('\n又有新成员加入了，代表大家欢迎你哦')
-        elif isinstance(event,GroupDecreaseNoticeEvent): 
-            if gid in groupMemberNumNoticeList:
-                message=MessageSegment.text('有人离开了群聊，这真是个伤心的故事')
-                return
-        if message=='':
-            return
-        await bot.send(event,message)
+    gid=event.group_id
+    uid=event.user_id     
+    message=''
+    if isinstance(event, GroupIncreaseNoticeEvent):        
+        if gid in config["groupMemberNumNoticeList"]:
+            message=MessageSegment.at(uid)+MessageSegment.text('\n又有新成员加入了，代表大家欢迎你哦')
+    elif isinstance(event,GroupDecreaseNoticeEvent): 
+        if gid in config["groupMemberNumNoticeList"]:
+            message=MessageSegment.text('有人离开了群聊，这真是个伤心的故事')
+            # return
+    if message=='':
+        return
+    await bot.send(event,message)
 
 addGroupNumNoticeList = on_command("设置群成员更易通知",block=True,permission=GROUP_ADMIN|GROUP_OWNER|SUPERUSER)
 @addGroupNumNoticeList.handle()
-async def _(bot: Bot, event: GroupMessageEvent,args:Message=CommandArg()):
-    gid=event.group_id
-    msg=''
-    if gid not in groupMemberNumNoticeList:
-        groupMemberNumNoticeList.append(gid)
+async def _(bot: Bot, event: MessageEvent,args:Message=CommandArg()):
+    msg=args.extract_plain_text().strip()
+    groupList=await getReferIdList(bot)
+    if msg!='' and (not msg.isdigit() or int(msg) not in groupList):
+        msg='输入非法！空？非数字?非机器人群聊？'
+        await addGroupNumNoticeList.finish(msg)
+    if msg!='':
+        gid=int(msg)
+    elif isinstance(event,GroupMessageEvent):
+        gid=event.group_id
+    else:
+        msg='输入非法！空？'
+        await addGroupNumNoticeList.finish(msg)
+    if gid not in config["groupMemberNumNoticeList"]:
+        config["groupMemberNumNoticeList"].append(gid)
         msg+='开启成功哦'
     else:
-        groupMemberNumNoticeList.remove(gid)
+        config["groupMemberNumNoticeList"].remove(gid)
         msg+='关闭成功哦'
     with open(configPath,'w',encoding='utf-8') as fp:
         json.dump(config,fp,ensure_ascii=False)
