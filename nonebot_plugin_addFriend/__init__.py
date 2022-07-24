@@ -274,7 +274,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
         await addRecipient.finish('不是{}的好友或者格式错误'.format(config['botName']))
    
 
-
+ 
 
 groupMemberNumNotice = on_notice(priority=10,block=True)
 @groupMemberNumNotice.handle()
