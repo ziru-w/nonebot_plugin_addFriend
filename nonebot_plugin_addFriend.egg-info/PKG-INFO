@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: nonebot-plugin-addFriend
-Version: 2.3.3
+Version: 2.4.1
 Summary: A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests.
 Home-page: https://github.com/ziru-w/nonebot_plugin_addFriend
 Author: wziru
@@ -42,6 +42,8 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 7./设置群成员更易通知 已开时会关闭、已关会开 群号自动获取为当前群
 
 8./设置bot私聊转发
+
+9.黑名单群聊与警告群聊、黑名单群名与警告群名，一个直接拒绝、一个不自动同意，含黑名单、警告词或群号时生效，可以同时转发拉人头兼职群群聊发起者给配置过的好友，一般是该群管理员，暂无机器人接口、请于本插件目录下config.json文件中手动配置
 
 配置项结构
 

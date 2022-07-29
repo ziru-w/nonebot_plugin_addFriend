@@ -1,0 +1,16 @@
+{
+  "agreeAutoApprove": { "friend": 1, "group": 0 },
+  "maxNum": 5,
+  "maxViewNum":20,
+  "recipientList": [],
+  "botName": "我",
+  "groupNumNoticeList": [],
+  "friend_msg": {
+      "notice_msg": "请求添加好友,验证消息为",
+      "welcome_msg": "我未知的的朋友啊，很高兴你添加我为qq好友哦！\n同时，如果有疑问，可以发送/help哦"
+  },
+  "group_msg": {
+      "notice_msg": "发送群邀请,验证消息为",
+      "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
+  }
+}

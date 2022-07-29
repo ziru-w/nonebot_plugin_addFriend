@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nonebot_plugin_addFriend",
-    version="2.3.3",
+    version="2.4.1",
     author="wziru",
     description="A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests.",
     long_description=long_description,
@@ -23,6 +23,7 @@ setup(
     python_requires=">=3.7",
     install_requires = [
         'nonebot-adapter-onebot>=2.0.0-beta.1',
-        'nonebot2>=2.0.0-beta.1'
+        'nonebot2>=2.0.0-beta.1',
+        'nonebot_plugin_txt2img'
     ]
 )

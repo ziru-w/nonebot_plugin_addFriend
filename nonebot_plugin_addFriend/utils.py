@@ -5,10 +5,18 @@
 
 
 from nonebot import get_driver
-from nonebot.adapters.onebot.v11 import Bot,  MessageEvent
+from nonebot.adapters.onebot.v11 import Bot,  MessageSegment
 import os
 import datetime
-
+from nonebot_plugin_txt2img import Txt2Img
+async def parseMsg(commandText,resMsg,font_size = 32,isText=1):
+    if len(resMsg)<=300 and isText==1:
+       return resMsg
+    else:
+        title = commandText
+        img = Txt2Img(font_size)
+        pic = img.save(title, resMsg)
+        return MessageSegment.image(pic)
 
 async def getReferIdList(bot:Bot,idName='group_id',no_cache=True):
     if idName=='user_id':
@@ -87,7 +95,35 @@ def read_data(numPath):
 
 
 
-
+def isNormalAdd(config,autoType,addInfo,agreeAutoApprove):
+    blackDict=config["blackDict"][autoType]
+    warnDict=config["warnDict"][autoType]
+    statusDict=config["statusDict"]
+    blackStatusDict=statusDict["blackDict"][autoType]
+    warnStatusDict=statusDict["warnDict"][autoType]
+    if autoType=="group":
+        name=addInfo["group_name"]
+        id=addInfo["group_id"]
+    else:
+        name=addInfo["nickname"]
+        id=addInfo["user_id"]
+    status=blackStatusDict["status"]+"\n其名"+name
+    if id in blackDict["id"]:
+        return -1,status
+    for balckText in blackDict["text"]:
+        if balckText in name:
+            return -1,status
+    status=warnStatusDict["status"]+"\n其名{}\n是否同意".format(name)
+    if id in warnDict["id"]:
+        return 0,status
+    for warnText in warnDict["text"]:
+        if warnText in name:
+            return 0,status
+    if agreeAutoApprove==1:
+        status='{}添加成功'.format(id)
+        return agreeAutoApprove,status+"\n其名"+name
+    status="\n其名{}\n是否同意".format(name)
+    return agreeAutoApprove,status
 
 
 def parseTimeInterval(old='2022-06-21 20:57',now='',op='int'):

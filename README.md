@@ -27,6 +27,8 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
 8./设置bot私聊转发
 
+9.黑名单群聊与警告群聊、黑名单群名与警告群名，一个直接拒绝、一个不自动同意，含黑名单、警告词或群号时生效，可以同时转发拉人头兼职群群聊发起者给配置过的好友，一般是该群管理员，暂无机器人接口、请于本插件目录下config.json文件中手动配置
+
 配置项结构
 
 {
