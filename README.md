@@ -30,21 +30,27 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 9.黑名单群聊与警告群聊、黑名单群名与警告群名，一个直接拒绝、一个不自动同意，含黑名单、警告词或群号时生效，可以同时转发拉人头兼职群群聊发起者给配置过的好友，一般是该群管理员，暂无机器人接口、请于本插件目录下config.json文件中手动配置
 
 配置项结构
-
 {
-    "agreeAutoApprove": { "friend": 1, "group": 0 },
-    "maxNum": 5,
-    "maxViewNum":20,
-    "recipientList": [],
-    "groupMemberNumNoticeList":[],
-    "forwardSet":1,
-    "botName": "我",
-    "friend_msg": {
-        "notice_msg": "请求添加好友,验证消息为",
-        "welcome_msg": "我未知的的朋友啊，很高兴你添加我为qq好友哦！\n同时，如果有疑问，可以发送/help哦"
-    },
-    "group_msg": {
-        "notice_msg": "发送群邀请,验证消息为",
-        "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
+  "agreeAutoApprove": { "friend": 1, "group": 1 },
+  "maxNum": 5,
+  "maxViewNum": 20,
+  "recipientList": [],
+  "groupMemberNumNoticeList": [],
+  "forwardSet": 1,
+  "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":["通知"],"id":[]},"forward":{}},
+  "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":["新生"],"id":[]},"forward":{}},
+  "botName": "我",
+  "friend_msg": {
+    "notice_msg": "请求添加好友,验证消息为",
+    "welcome_msg": "我未知的的朋友啊，很高兴你添加我为qq好友哦！\n同时，如果有疑问，可以发送/help哦"
+  },
+  "group_msg": {
+    "notice_msg": "发送群邀请,验证消息为",
+    "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
+  },
+  "statusDict":{
+    "blackDict":{"friend":{"status":"拉黑Q类,已拒绝,仅作提示"},"group":{"status":"拉黑群类,已拒绝,仅作提示"}},
+    "warnDict":{"friend":{"status":"警告Q类,手动同意,是否同意"},"group":{"status":"警告Q类,手动同意,是否同意"}}
     }
 }
+
