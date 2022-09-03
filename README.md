@@ -6,6 +6,8 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
 
 下个版本，2.4.2版本更新计划，时间：考研后，内容：检测好友验证消息，重构...
+
+
 下载方法 pip install nonebot_plugin_addFriend
 
 1.该插件运行后会检查配置文件是否存在，并生成默认配置，也可手动复制内容创建文件，创建路径为插件目录，文件名为config.json,其中.json为后缀名，表征文件类型，请不要创建为config.json.json文件，
