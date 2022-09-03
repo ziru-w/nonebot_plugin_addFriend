@@ -5,11 +5,11 @@
 A plug-in based on nonebot2, which is used to process the request to add QQ friends and QQ groups
 
 
+下个版本，2.4.2版本更新计划，时间：考研后，内容：检测好友验证消息，重构...
 下载方法 pip install nonebot_plugin_addFriend
 
 1.该插件运行后会检查配置文件是否存在，并生成默认配置，也可手动复制内容创建文件，创建路径为插件目录，文件名为config.json,其中.json为后缀名，表征文件类型，请不要创建为config.json.json文件，
 
-命令起始符列表最好不要是空的，起始符最好长度都一样，不一样请更改parseDifferentCommandStart()函数以调和统一不一样的命令起始符，因为我用的切片去除起始符，闲了看看别人咋处理的，欸嘿
 
 2.可自行设置是否同意自动加好友，命令为/更改自动同意群聊 1或0、/更改自动同意好友 1或0、/更改自动同意 1或0 1或0
 
@@ -27,7 +27,7 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
 8./设置bot私聊转发
 
-9.黑名单群聊与警告群聊、黑名单群名与警告群名，一个直接拒绝、一个不自动同意，含黑名单、警告词或群号时生效，可以同时转发拉人头兼职群群聊发起者给配置过的好友，一般是该群管理员，暂无机器人接口、请于本插件目录下config.json文件中手动配置
+9.黑名单群聊与警告群聊、黑名单群名与警告群名，一个直接拒绝、一个不自动同意，含黑名单、警告词或群号时生效，可以同时转发拉人头兼职群群聊发起者给配置过的好友，一般是该群管理员（自己配置qq号，因为只发给好友，临时会话太危险），暂无机器人接口、请于本插件目录下config.json文件中手动配置
 
 配置项结构
 {
@@ -49,8 +49,8 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
     "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
   },
   "statusDict":{
-    "blackDict":{"friend":{"status":"拉黑Q类,已拒绝,仅作提示"},"group":{"status":"拉黑群类,已拒绝,仅作提示"}},
-    "warnDict":{"friend":{"status":"警告Q类,手动同意,是否同意"},"group":{"status":"警告Q类,手动同意,是否同意"}}
+    "blackDict":{"friend":{"status":"拉黑Q类,已拒绝,仅作提示"},"group":{"status":"拉黑群聊,已拒绝,仅作提示"}},
+    "warnDict":{"friend":{"status":"警告Q类,手动同意,是否同意"},"group":{"status":"警告群聊,手动同意,是否同意"}}
     }
 }
 
