@@ -36,6 +36,9 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 11./清理请求表 清理请求表中已添加过的好友信息
 
 12./加好友帮助 返回各命令 忘了康康，看config.json 如果使用vscode的话推荐使用prettier插件格式化，自带的也行
+
+
+
 配置项结构
 {
   "agreeAutoApprove": { "friend": 1, "group": 1 },
