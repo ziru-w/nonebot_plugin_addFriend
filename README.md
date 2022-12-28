@@ -4,6 +4,9 @@
 
 A plug-in based on nonebot2, which is used to process the request to add QQ friends and QQ groups
 
+
+下个版本，2.4.2版本更新计划，时间：考研后，内容：检测好友验证消息，重构...
+
 如果版本更新请按模板手动配置config.json文件中的新增项和键名更改项，如果不介意原来配置初始化，可以删掉重新生成
 
 下载方法 pip install nonebot_plugin_addFriend
@@ -26,7 +29,7 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
 8./设置bot私聊转发
 
-9.黑名单群聊与警告群聊、黑名单群名与警告群名，一个直接拒绝、一个不自动同意，含黑名单、警告词或群号时生效，可以同时转发拉人头兼职群群聊发起者给配置过的好友，一般是该群管理员，暂无机器人接口、请于本插件目录下config.json文件中手动配置
+9.黑名单群聊与警告群聊、黑名单群名与警告群名，一个直接拒绝、一个不自动同意，含黑名单、警告词或群号时生效，可以同时转发拉人头兼职群群聊发起者给配置过的好友，一般是该群管理员（自己配置qq号，因为只发给好友，临时会话太危险），暂无机器人接口、请于本插件目录下config.json文件中手动配置
 
 10.验证消息，需要验证消息在添加者验证消息中方验证通过，默认空字符，表示皆通过。手动配置
 
@@ -35,26 +38,25 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 12./加好友帮助 返回各命令 忘了康康，看config.json 如果使用vscode的话推荐使用prettier插件格式化，自带的也行
 配置项结构
 {
-    "agreeAutoApprove": { "friend": 1, "group": 0 },
-    "numControl": {"maxNum":5,"time":2,"unit":'h'},
-    "maxViewNum":20,
-    "recipientList": recipientList[:2],
-    "groupMemberNumNoticeList":[],
-    "forwardSet":0,
-    "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":["通知"],"id":[]},"forward":{}},#"群号":"管理员号，转发给其用来揪出在群里拉人头的人"
-    "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{}},
-    "allowAddFriednText":[],
-    "botName": "我",
-    "friend_msg": {
-        "notice_msg": "请求添加好友,验证消息为",
-        "welcome_msg": "我未知的的朋友啊，很高兴你添加我为qq好友哦！\n同时，如果有疑问，可以发送/help哦"
-    },
-    "group_msg": {
-        "notice_msg": "发送群邀请,验证消息为",
-        "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
-    },
-    "statusDict":{
-        "blackDict":{"friend":{"status":"拉黑Q类,已拒绝,仅作提示"},"group":{"status":"拉黑群类,已拒绝,仅作提示"}},
-        "warnDict":{"friend":{"status":"警告Q类,手动同意,是否同意"},"group":{"status":"警告群类,手动同意,是否同意"}}
+  "agreeAutoApprove": { "friend": 1, "group": 1 },
+  "maxNum": 5,
+  "maxViewNum": 20,
+  "recipientList": [],
+  "groupMemberNumNoticeList": [],
+  "forwardSet": 1,
+  "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":["通知"],"id":[]},"forward":{}},
+  "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":["新生"],"id":[]},"forward":{}},
+  "botName": "我",
+  "friend_msg": {
+    "notice_msg": "请求添加好友,验证消息为",
+    "welcome_msg": "我未知的的朋友啊，很高兴你添加我为qq好友哦！\n同时，如果有疑问，可以发送/help哦"
+  },
+  "group_msg": {
+    "notice_msg": "发送群邀请,验证消息为",
+    "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
+  },
+  "statusDict":{
+    "blackDict":{"friend":{"status":"拉黑Q类,已拒绝,仅作提示"},"group":{"status":"拉黑群类,已拒绝,仅作提示"}},
+    "warnDict":{"friend":{"status":"警告Q类,手动同意,是否同意"},"group":{"status":"警告Q类,手动同意,是否同意"}}
     }
 }
