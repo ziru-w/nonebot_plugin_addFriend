@@ -8,17 +8,30 @@ from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Bot,  MessageSegment
 import os
 import datetime
-from nonebot_plugin_txt2img import Txt2Img
-async def parseMsg(commandText,resMsg,font_size = 32,isText=1):
-    if len(resMsg)<=300 and isText==1:
-       return resMsg
+# from nonebot_plugin_txt2img import Txt2Img
+def filterFriend(comment,type,allowTextList):
+    if type=='friend':
+        if allowTextList==[]:
+            return True
+        for allowText in allowTextList:
+            if allowText in comment:
+                return True
     else:
-        title = commandText
-        img = Txt2Img(font_size)
-        pic = img.save(title, resMsg)
-        return MessageSegment.image(pic)
+        return True
+    return False
+
+async def parseMsg(commandText,resMsg,font_size = 32,isText=1):
+    return resMsg[:400]
+    # if len(resMsg)<=300 and isText==1:
+    #    return resMsg
+    # else:
+    #     title = commandText
+    #     img = Txt2Img(font_size)
+    #     pic = img.save(title, resMsg)
+    #     return MessageSegment.image(pic)
 
 async def getReferIdList(bot:Bot,idName='group_id',no_cache=True):
+    '''获取朋友或群id列表'''
     if idName=='user_id':
         referInfoList=await bot.get_friend_list(no_cache=no_cache)
     else:
@@ -31,6 +44,7 @@ async def getReferIdList(bot:Bot,idName='group_id',no_cache=True):
 
  
 async def sendMsg(bot:Bot,recipientList,msg:str,op=0):
+    '''群发消息'''
     if not isinstance(recipientList,list):
         if isinstance(recipientList,str) and recipientList.isdigit():
             recipientList=[recipientList]
@@ -44,40 +58,18 @@ async def sendMsg(bot:Bot,recipientList,msg:str,op=0):
             await bot.send_group_msg(group_id=recipient, message=msg)
 
 
-def commandStartList(n=1)->list:
-    command_start=list(get_driver().config.command_start)
-    if len(command_start)==0:
-        command_start=['']
-    else:
-        command_start=command_start[:n]
-    return command_start
-    
-def parseDifferentCommandStart(text):
-    lenght=len(commandStartList()[0])
-    if lenght==0:
-        text='/'+text
-    else:
-        text='/'+text[lenght:]
-    print(text)
-    return text
-
 def getExist(plainCommandtext:str,wholeMessageText:str,argsText:str):
-    commandText=wholeMessageText.replace(argsText,'').strip()
+    '''返回命令'''
+    commandText=wholeMessageText[::-1].replace(argsText[::-1],'',1)[::-1].strip()
     if plainCommandtext=='':
         return commandText
     else:
         return plainCommandtext in commandText
-def getExist1(plainCommandtext:str,wholeMessageText:str,argsText:str):
-    commandText=wholeMessageText.replace(argsText,'').strip()
-    lenght1=len(commandText)
-    lenght2=len(plainCommandtext)
-    return commandText[lenght1-lenght2:]==plainCommandtext
-
-
 
  
 
 def read_data(numPath):
+    '''读时间'''
     global num,now,old
     if not os.path.exists(numPath):
         now = datetime.datetime.now()
@@ -93,7 +85,9 @@ def read_data(numPath):
     now = datetime.datetime.now()
     return num,now,old
 
-
+def writeLog(logPath,logContent):
+    with open(logPath, "a", encoding="utf-8") as fp:
+        fp.write(logContent)
 
 def isNormalAdd(config,autoType,addInfo,agreeAutoApprove):
     blackDict=config["blackDict"][autoType]
@@ -107,22 +101,22 @@ def isNormalAdd(config,autoType,addInfo,agreeAutoApprove):
     else:
         name=addInfo["nickname"]
         id=addInfo["user_id"]
-    status=blackStatusDict["status"]+"\n其名"+name
+    status=blackStatusDict["status"]+"\n昵称"+name
     if id in blackDict["id"]:
         return -1,status
     for balckText in blackDict["text"]:
         if balckText in name:
             return -1,status
-    status=warnStatusDict["status"]+"\n其名{}\n是否同意".format(name)
+    status=warnStatusDict["status"]+"\n昵称{}\n是否同意".format(name)
     if id in warnDict["id"]:
         return 0,status
     for warnText in warnDict["text"]:
         if warnText in name:
             return 0,status
     if agreeAutoApprove==1:
-        status='{}添加成功'.format(id)
-        return agreeAutoApprove,status+"\n其名"+name
-    status="\n其名{}\n是否同意".format(name)
+        status='\nqq{}昵称{}添加成功'.format(id,name)
+        return agreeAutoApprove,status
+    status="\n昵称{}\n是否同意".format(name)
     return agreeAutoApprove,status
 
 
@@ -149,3 +143,19 @@ def parseTimeInterval(old='2022-06-21 20:57',now='',op='int'):
     else:
         return {'days':days*3600*24*symbol,'seconds':seconds*symbol}
 
+
+def parseTime(numControl:dict,num,old,now):
+    time=parseTimeInterval(old,now)
+    if numControl['unit']=='h':
+        if time/3600>numControl['time']:
+            num=0
+    elif numControl['unit']=='m':
+        if time/60>numControl['time']:
+            num=0
+    else:
+        if time/3600/24>numControl['time']:
+            num=0
+    if num>numControl["maxNum"]:
+        return -1
+    else:
+        return num+1

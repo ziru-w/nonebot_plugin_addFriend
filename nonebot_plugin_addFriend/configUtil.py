@@ -10,6 +10,7 @@ numPath=basedir+'/num.txt'
 configPath=basedir+'/config.json'
 requestorPath=basedir+'/requestor.json'
 max=5
+blackLogPath=basedir+'/.json'
 def readData(path,content={}):
     if not exists(path):
         with open(path,'w',encoding='utf-8') as fp:
@@ -25,13 +26,14 @@ recipientList=list(get_driver().config.superusers)
 # recipients=str(recipients)[1:-1].replace(' ','').replace("'",'')
 configModel={
     "agreeAutoApprove": { "friend": 1, "group": 0 },
-    "maxNum": 5,
+    "numControl": {"maxNum":5,"time":2,"unit":'h'},
     "maxViewNum":20,
     "recipientList": recipientList[:2],
     "groupMemberNumNoticeList":[],
-    "forwardSet":1,
-    "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{"群号":"管理员号，转发给其用来揪出在群里拉人头的人"}},
+    "forwardSet":0,
+    "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{}},#"群号":"管理员号，转发给其用来揪出在群里拉人头的人"
     "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{}},
+    "allowAddFriednText":[],
     "botName": "我",
     "friend_msg": {
         "notice_msg": "请求添加好友,验证消息为",
@@ -47,7 +49,7 @@ configModel={
     }
 }
 config=readData(configPath,configModel)
-requestorDict=readData(requestorPath,{})
+requestorDict=readData(requestorPath,{"friend":{},"group":{}})
 # if not exists(requestorPath):
 #     requestorDict={}
 #     with open(requestorPath,'w',encoding='utf-8') as fp:

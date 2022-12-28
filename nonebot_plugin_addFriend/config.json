@@ -6,7 +6,8 @@
   "groupMemberNumNoticeList": [],
   "forwardSet": 1,
   "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":["通知"],"id":[]},"forward":{}},
-  "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":["新生"],"id":[]},"forward":{}},
+  "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":["联谊"],"id":[]},"forward":{}},
+  "allowAddFriednText":"",
   "botName": "我",
   "friend_msg": {
     "notice_msg": "请求添加好友,验证消息为",

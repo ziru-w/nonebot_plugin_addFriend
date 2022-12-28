@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "nonebot-plugin-addfriend"
+version = "2.4.3"
+description = "A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests."
+authors = ["ziru-w <77319678+ziru-w@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "nonebot_plugin_addfriend"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+nonebot-adapter-onebot=">=2.0.0-beta.1"
+nonebot2=">=2.0.0-beta.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

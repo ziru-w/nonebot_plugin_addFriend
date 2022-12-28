@@ -5,13 +5,14 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 
+from datetime import datetime
 import json
 
 import re
 from asyncio import sleep
 from os.path import dirname,exists
 from typing import Union
-from nonebot import on_command,on_request,on_notice
+from nonebot import on_command,on_request,on_notice,require
 from nonebot.adapters.onebot.v11 import Bot,  MessageEvent,PrivateMessageEvent,GroupMessageEvent, MessageSegment,RequestEvent,GroupRequestEvent, FriendRequestEvent,NoticeEvent,GroupDecreaseNoticeEvent,GroupIncreaseNoticeEvent
 from nonebot.message import event_preprocessor
 from nonebot import get_driver
@@ -19,8 +20,13 @@ from nonebot.permission import SUPERUSER
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.params import CommandArg
 from nonebot.adapters import Message
-from .configUtil import config,requestorDict,basedir,numPath,configPath,requestorPath,writeData
-from .utils import getReferIdList,read_data,sendMsg,getExist,parseMsg,isNormalAdd
+from .configUtil import config,requestorDict,basedir,numPath,configPath,requestorPath,writeData,blackLogPath
+from .utils import getReferIdList,read_data,sendMsg,getExist,parseMsg,isNormalAdd,writeLog,filterFriend,parseTime
+# try:
+#     scheduler = require('nonebot_plugin_apscheduler').scheduler
+# except:
+#     import nonebot_plugin_apscheduler 
+#     scheduler = nonebot_plugin_apscheduler.scheduler
 
 #初始化完毕，num文件单独初始化
 parseRequest = on_request(priority=1, block=True)
@@ -61,28 +67,32 @@ async def _(bot: Bot, event: RequestEvent):
     agreeAutoApprove,status=isNormalAdd(config,autoType,addInfo,agreeAutoApprove)
     if agreeAutoApprove==-1:
         await event.reject(bot)
-        await sendMsg(bot,config['recipientList'],msg+status,0)
-        forwardId=config["blackDict"].get(id)
+        await sendMsg(bot,config['recipientList'],msg+status,0)  #黑名单警告，转发给设定的人
+        forwardId=config["blackDict"]["forward"].get(id)
         if forwardId!=None and autoType=="group":
             friendList=await getReferIdList(bot,'user_id')
             if forwardId in friendList:
                 await bot.send_private_msg(user_id=forwardId,message=msg+status)
             else:
-                del config["blackDict"][id]
+                del config["blackDict"]["forward"][id]
+            writeLog(blackLogPath,msg+status+'\n')
         return
-    max=config['maxNum']
-    if agreeAutoApprove==0 or (num>=max and (now.date()-old.date()).days==0):
-        requestorDict[id]={'flag':event.flag,'comment':event.comment,"notice_msg":notice_msg,'requestorId':event.user_id,'time':time}
+    if not filterFriend(event.comment,autoType,config['allowAddFriednText']): #验证信息
+        status='\n未通过验证消息,已拒绝'
+        await sendMsg(bot,config['recipientList'],msg+status,0)#不记录
+        await event.reject(bot)
+        return
+    num=parseTime(config['numControl'],num,old,now)
+    if agreeAutoApprove==0 or num==-1:
+        if num==-1:
+            status='\n此时日增{}人,未能再自动添加'.format(config['numControl']['maxNum'])
+        else:
+            status='\n未允许自动添加'
+        requestorDict[autoType][id]={'flag':event.flag,'comment':event.comment,"notice_msg":notice_msg,'staus':status,'requestorId':event.user_id,'time':time}
         writeData(requestorPath,requestorDict)
-        if num>max:
-            status='\n此时日增{}人,未能再自动添加'.format(max)+status
         await sendMsg(bot,config['recipientList'],msg+status,0)
     else:  
         #既自动添加又条件合适
-        if (now.date()-old.date()).days!=0:
-            num=0
-        else:
-            num+=1
         with open(numPath,'w',encoding='utf-8') as fp:
             fp.write(str(num)+','+str(now))  
         await event.approve(bot)
@@ -93,7 +103,7 @@ async def _(bot: Bot, event: RequestEvent):
 
 
 
-againReadConfig= on_command("重载配置",aliases={"更改自动同意","更改最大日加好友数量","更改查看加返回数量"},block=True,permission=SUPERUSER)
+againReadConfig= on_command("重载配置",aliases={"更改自动同意","更改最大加好友数量","更改查看加返回数量","更改加好友时间单位"},priority=5,block=True,permission=SUPERUSER)
 @againReadConfig.handle()
 async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     global config
@@ -129,17 +139,25 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
                         config['agreeAutoApprove'][setKeyList[i]]=0
                 i+=1      
         else:
-            await reFriendReqNum.finish('格式')
+            await againReadConfig.finish('格式')
         resMsg='更改成功,为\n{}'.format(config['agreeAutoApprove'])
 
-    elif "更改最大日加好友数量" in commandText:
+    elif "更改最大加好友数量" in commandText:
         if argsText.isdigit():
             maxNum=int(argsText)
             if maxNum>0:
-                config['maxNum']=maxNum
+                config['numControl']['maxNum']=maxNum
             else:
-                config['maxNum']=0
-        resMsg='更改成功,为{}'.format(config['maxNum'])
+                config['numControl']['maxNum']=0
+        resMsg='更改成功,为{}'.format(config['numControl']['maxNum'])
+    elif "更改加好友时间单位" in commandText:
+        if '时' in argsText:
+                config['numControl']['unit']='h'
+        elif '分' in argsText:
+            config['numControl']['unit']='m'
+        else:
+            config['numControl']['unit']='d'
+        resMsg='更改成功,为{}'.format(config['numControl']['unit'])
     elif "更改查看加返回数量" in commandText:
         if argsText.isdigit():
             maxViewNum=int(argsText)
@@ -154,7 +172,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     await againReadConfig.finish(resMsg)
     
         
-addFriend = on_command("同意加",aliases={'拒绝加','查看加'},block=True)
+addFriend = on_command("同意加",aliases={'拒绝加','查看加'},priority=5,block=True)
 @addFriend.handle()
 async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     if event.get_user_id() not in config['recipientList']:
@@ -162,6 +180,10 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     text=event.get_plaintext().strip()
     argsText=args.extract_plain_text().strip()
     commandText=getExist("",text,argsText)
+    if '群' in commandText:
+        autoType='group'
+    else:
+        autoType='friend'
     if "同意加" in commandText:
         approve=True
         status='添加成功'
@@ -174,7 +196,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
             num=int(num)
         else:
             num=config['maxViewNum']
-        requestorValueList=list(requestorDict.values())[:num]
+        requestorValueList=list(requestorDict[autoType].values())[:num]
         requestorInfos=str(requestorValueList)
         resMsg=await parseMsg(commandText,requestorInfos)
         await againReadConfig.finish(resMsg)
@@ -183,21 +205,21 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     # 预处理完毕，开始设置参数
     argsText=argsText.split()
     QQOrGroupId=argsText[0]
-    if requestorDict.get(QQOrGroupId)==None:
+    if requestorDict[autoType].get(QQOrGroupId)==None:
         await addFriend.finish('没有此请求')
 
-    flag=requestorDict[QQOrGroupId]['flag']
-    notice_msg=requestorDict[QQOrGroupId]['notice_msg']
-    comment=requestorDict[QQOrGroupId]['comment']
-    requestorId=requestorDict[QQOrGroupId]['requestorId']
-    time=requestorDict[QQOrGroupId]['time']
+    flag=requestorDict[autoType][QQOrGroupId]['flag']
+    notice_msg=requestorDict[autoType][QQOrGroupId]['notice_msg']
+    comment=requestorDict[autoType][QQOrGroupId]['comment']
+    requestorId=requestorDict[autoType][QQOrGroupId]['requestorId']
+    time=requestorDict[autoType][QQOrGroupId]['time']
     # 参数设置完毕，开始处理请求
     try:
-        if notice_msg==config['group_msg']['notice_msg']:
+        if autoType=="group":
             resMsg='群号{}，邀请者{}'.format(QQOrGroupId,requestorId)+notice_msg+comment+'\n时间:{}\n'.format(time)
             msgType='group_msg'
             groupList=await getReferIdList(bot)
-            if QQOrGroupId in groupList:
+            if int(QQOrGroupId) in groupList:
                 status='已经添加成功，勿复添加'
             else:
                 await bot.set_group_add_request(flag=flag,approve=approve)
@@ -205,7 +227,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
             resMsg=QQOrGroupId+notice_msg+comment+'\n{}\n'.format(time)
             msgType='friend_msg'
             friendList=await getReferIdList(bot,'user_id')
-            if QQOrGroupId in friendList:
+            if int(QQOrGroupId) in friendList:
                 status='已经添加成功，勿复添加'
             else:
                 if len(argsText)>=2 and argsText[1]!='' and approve==True:
@@ -218,7 +240,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
         status='为何手动添加而后又删好友或退群又来这里同意？'
     finally:
         # 请求处理完毕，开始更易数据
-        del requestorDict[QQOrGroupId]
+        del requestorDict[autoType][QQOrGroupId]
         writeData(requestorPath,requestorDict)
     resMsg+=status
     # 数据更易完毕，开始用户交互，返回结果，发送欢迎
@@ -231,9 +253,27 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
         welcome_msg=config[msgType]['welcome_msg']
         await bot.send_private_msg(user_id=requestorId, message=welcome_msg)
    
+# @scheduler.scheduled_job('interval', hour=1, id='check_outdate', timezone="Asia/Shanghai")
+delRequestorDict = on_command("清理请求表",priority=5, block=True,permission=SUPERUSER)
+@delRequestorDict.handle()
+async def check_outdate(bot:Bot, event: MessageEvent):
+    delList=[]
+    for requestorType in  requestorDict:
+        if requestorType!='friend':
+            ReferIdList=await getReferIdList(bot,'group_id')
+        else:
+            ReferIdList=await getReferIdList(bot,'user_id')
+        requestorList=list(requestorDict[requestorType])
+        for requestor in requestorList:
+            if int(requestor) in ReferIdList:
+                delList.append(requestor)
+                del requestorDict[requestorType][requestor]
+    writeData(requestorPath,requestorDict)
+    msg='已清理如下:\n'+str(delList)[1:-1].replace(', ','  ')
+    await delRequestorDict.send(msg)
     
 
-reFriendReqNum = on_command("重置好友请求",block=True,permission=SUPERUSER)
+reFriendReqNum = on_command("重置好友请求",block=True,priority=5,permission=SUPERUSER)
 @reFriendReqNum.handle()
 async def _(bot: Bot, event: MessageEvent):
     text=event.get_plaintext().strip()
@@ -253,7 +293,7 @@ async def _(bot: Bot, event: MessageEvent):
         fp.write(num+','+str(now))
     await reFriendReqNum.finish('重置成功,为{}'.format(num))
 
-addRecipient = on_command("添加请求接收者",aliases={"删除请求接收者"},block=True,permission=SUPERUSER)
+addRecipient = on_command("添加请求接收者",aliases={"删除请求接收者"},block=True,priority=5,permission=SUPERUSER)
 @addRecipient.handle()
 async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     friend_list=await getReferIdList(bot,'user_id')
@@ -280,49 +320,8 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
 
 
 
-groupMemberNumNotice = on_notice(priority=10,block=True)
-@groupMemberNumNotice.handle()
-async def _(bot: Bot, event: Union[GroupIncreaseNoticeEvent, GroupDecreaseNoticeEvent]):
-    print(type(event))
-    gid=event.group_id
-    uid=event.user_id     
-    message=''
-    if isinstance(event, GroupIncreaseNoticeEvent):        
-        if gid in config["groupMemberNumNoticeList"]:
-            message=MessageSegment.at(uid)+MessageSegment.text('\n又有新成员加入了，代表大家欢迎你哦')
-    elif isinstance(event,GroupDecreaseNoticeEvent): 
-        if gid in config["groupMemberNumNoticeList"]:
-            message=MessageSegment.text('有人离开了群聊，这真是个伤心的故事')
-            return
-    if message=='':
-        return
-    await bot.send(event,message)
 
-addGroupNumNoticeList = on_command("设置群成员更易通知",block=True,permission=GROUP_ADMIN|GROUP_OWNER|SUPERUSER)
-@addGroupNumNoticeList.handle()
-async def _(bot: Bot, event: MessageEvent,args:Message=CommandArg()):
-    msg=args.extract_plain_text().strip()
-    groupList=await getReferIdList(bot)
-    if msg!='' and (not msg.isdigit() or int(msg) not in groupList):
-        msg='输入非法！空？非数字?非机器人群聊？'
-        await addGroupNumNoticeList.finish(msg)
-    if msg!='':
-        gid=int(msg)
-    elif isinstance(event,GroupMessageEvent):
-        gid=event.group_id
-    else:
-        msg='输入非法！空？'
-        await addGroupNumNoticeList.finish(msg)
-    if gid not in config["groupMemberNumNoticeList"]:
-        config["groupMemberNumNoticeList"].append(gid)
-        msg+='开启成功哦'
-    else:
-        config["groupMemberNumNoticeList"].remove(gid)
-        msg+='关闭成功哦'
-    writeData(configPath,config)
-    await addGroupNumNoticeList.send(msg)
-
-agreeForward = on_command("设置bot私聊转发",block=True,permission=SUPERUSER)
+agreeForward = on_command("设置bot私聊转发",block=True,priority=5,permission=SUPERUSER)
 @agreeForward.handle()
 async def _(bot: Bot, event: MessageEvent):
     # forwardSet=config['forwardSet']
@@ -334,10 +333,31 @@ async def _(bot: Bot, event: MessageEvent):
         msg='关闭成功哦'
     writeData(configPath,config)
     await agreeForward.send(msg)
+
+msgControl=[0,datetime.now(),1]
 @event_preprocessor
 async def sendPrivate(bot:Bot,event: PrivateMessageEvent):
     if config['recipientList']==[] or config['forwardSet']==0:
         return
+    if msgControl[2]==0: #
+        if (datetime.now()-msgControl[1]).seconds>20:
+            msgControl[2]=1
+        else:
+            return
+    msgControl[0]+=1
+    if msgControl[0]/((datetime.now()-msgControl[1]).seconds+1)>10:
+        msgControl[2]=0
+        msgControl[1]=datetime.now()
+        msgControl[0]=0
     if event.get_user_id()!=config['recipientList'][0]:
         plaintext=event.get_message()
         await bot.send_private_msg(user_id=int(config['recipientList'][0]),message='叮~私聊消息\nqq:{}\n昵称:{}\n消息:{}'.format(event.user_id,event.sender.nickname,plaintext),auto_escape=False)
+
+
+
+
+friendHelp=on_command("加好友帮助",block=True,priority=5,permission=SUPERUSER)
+@friendHelp.handle()
+async def _(bot: Bot, event: MessageEvent):
+    msg='重载配置,更改自动同意,更改最大加好友数量,更改查看加返回数量,更改加好友时间单位\n同意加,拒绝加,查看加(群、好友)\n清理请求表\n重置好友请求\n添加请求接收者,删除请求接收者'
+    await friendHelp.send(msg)
