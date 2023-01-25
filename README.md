@@ -4,9 +4,6 @@
 
 A plug-in based on nonebot2, which is used to process the request to add QQ friends and QQ groups
 
-
-下个版本，2.4.2版本更新计划，时间：考研后，内容：检测好友验证消息，重构...
-
 如果版本更新请按模板手动配置config.json文件中的新增项和键名更改项，如果不介意原来配置初始化，可以删掉重新生成
 
 下载方法 pip install nonebot_plugin_addFriend
