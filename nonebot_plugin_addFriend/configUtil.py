@@ -29,7 +29,6 @@ configModel={
     "numControl": {"maxNum":5,"time":2,"unit":'h'},
     "maxViewNum":20,
     "recipientList": recipientList[:2],
-    "groupMemberNumNoticeList":[],
     "forwardSet":0,
     "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{}},#"群号":"管理员号，转发给其用来揪出在群里拉人头的人"
     "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{}},
@@ -44,8 +43,8 @@ configModel={
         "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
     },
     "statusDict":{
-        "blackDict":{"friend":{"status":"拉黑Q类,已拒绝,仅作提示"},"group":{"status":"拉黑群类,已拒绝,仅作提示"}},
-        "warnDict":{"friend":{"status":"警告Q类,手动同意,是否同意"},"group":{"status":"警告群类,手动同意,是否同意"}}
+        "blackDict":{"friend":{"status":"拉黑QQ,已拒绝,仅作提示"},"group":{"status":"拉黑群聊,已拒绝,仅作提示"}},
+        "warnDict":{"friend":{"status":"警告QQ,手动同意,是否同意"},"group":{"status":"警告群聊,手动同意,是否同意"}}
     }
 }
 config=readData(configPath,configModel)

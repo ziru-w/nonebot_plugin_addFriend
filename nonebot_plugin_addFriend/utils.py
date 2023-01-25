@@ -16,9 +16,9 @@ def filterFriend(comment,type,allowTextList):
         for allowText in allowTextList:
             if allowText in comment:
                 return True
+        return False
     else:
         return True
-    return False
 
 async def parseMsg(commandText,resMsg,font_size = 32,isText=1):
     return resMsg[:400]
@@ -155,7 +155,7 @@ def parseTime(numControl:dict,num,old,now):
     else:
         if time/3600/24>numControl['time']:
             num=0
-    if num>numControl["maxNum"]:
+    if num>=numControl["maxNum"]:
         return -1
     else:
         return num+1

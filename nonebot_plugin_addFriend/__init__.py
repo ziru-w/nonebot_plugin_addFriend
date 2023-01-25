@@ -85,7 +85,7 @@ async def _(bot: Bot, event: RequestEvent):
     num=parseTime(config['numControl'],num,old,now)
     if agreeAutoApprove==0 or num==-1:
         if num==-1:
-            status='\n此时日增{}人,未能再自动添加'.format(config['numControl']['maxNum'])
+            status='\n此时增满{}人,未能再自动添加'.format(config['numControl']['maxNum'])
         else:
             status='\n未允许自动添加'
         requestorDict[autoType][id]={'flag':event.flag,'comment':event.comment,"notice_msg":notice_msg,'staus':status,'requestorId':event.user_id,'time':time}
@@ -112,7 +112,9 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     text=event.get_plaintext().strip()
     argsText=args.extract_plain_text()
     commandText=getExist('',text,argsText)
+    print(commandText)
     if "更改自动同意" in commandText:
+        print(1)
         text=args.extract_plain_text()
         if '群聊' in argsText:
             argsText=argsText.replace('群聊','').strip()
@@ -143,6 +145,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
         resMsg='更改成功,为\n{}'.format(config['agreeAutoApprove'])
 
     elif "更改最大加好友数量" in commandText:
+        print(2)
         if argsText.isdigit():
             maxNum=int(argsText)
             if maxNum>0:
@@ -151,20 +154,24 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
                 config['numControl']['maxNum']=0
         resMsg='更改成功,为{}'.format(config['numControl']['maxNum'])
     elif "更改加好友时间单位" in commandText:
+        
+        print(argsText,1)
         if '时' in argsText:
-                config['numControl']['unit']='h'
+            config['numControl']['unit']='h'
         elif '分' in argsText:
             config['numControl']['unit']='m'
         else:
             config['numControl']['unit']='d'
         resMsg='更改成功,为{}'.format(config['numControl']['unit'])
     elif "更改查看加返回数量" in commandText:
+        print(3)
         if argsText.isdigit():
             maxViewNum=int(argsText)
             if maxViewNum>0 and maxViewNum<120:
                 config['maxViewNum']=maxViewNum
         resMsg='更改成功,为\n{}'.format(config['maxViewNum'])
     else:
+        print(4)
         resMsg='重载成功:\n{}'.format(config)
     if '重载配置' not in commandText:
         writeData(configPath,config)
@@ -264,6 +271,7 @@ async def check_outdate(bot:Bot, event: MessageEvent):
         else:
             ReferIdList=await getReferIdList(bot,'user_id')
         requestorList=list(requestorDict[requestorType])
+        print(ReferIdList)
         for requestor in requestorList:
             if int(requestor) in ReferIdList:
                 delList.append(requestor)
@@ -277,10 +285,10 @@ reFriendReqNum = on_command("重置好友请求",block=True,priority=5,permissio
 @reFriendReqNum.handle()
 async def _(bot: Bot, event: MessageEvent):
     text=event.get_plaintext().strip()
-    max=config['maxNum']
+    max=config['numControl']['maxNum']
     num,now,old=read_data(numPath)
-    if num<max and (now.date()-old.date()).days==0:
-        await reFriendReqNum.send(message='未日增{}人,人数为{}上次添加时间{}'.format(max,num,now))
+    if parseTime(config['numControl'],num,old,now)!=-1:
+        await reFriendReqNum.send(message='未增满{}人,人数为{}上次添加时间{}'.format(max,num,now))
     if '为' in text:
         plaintext=re.findall('[0-9]',text)
         if len(plaintext)==0:
@@ -359,5 +367,5 @@ async def sendPrivate(bot:Bot,event: PrivateMessageEvent):
 friendHelp=on_command("加好友帮助",block=True,priority=5,permission=SUPERUSER)
 @friendHelp.handle()
 async def _(bot: Bot, event: MessageEvent):
-    msg='重载配置,更改自动同意,更改最大加好友数量,更改查看加返回数量,更改加好友时间单位\n同意加,拒绝加,查看加(群、好友)\n清理请求表\n重置好友请求\n添加请求接收者,删除请求接收者'
+    msg='重载配置\n更改自动同意,更改最大加好友数量,更改查看加返回数量,更改加好友时间单位\n同意加,拒绝加,查看加(群、好友)\n清理请求表\n重置好友请求\n添加请求接收者,删除请求接收者'
     await friendHelp.send(msg)
