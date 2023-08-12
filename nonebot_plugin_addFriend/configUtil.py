@@ -1,6 +1,7 @@
 
 
 
+from datetime import datetime
 from os.path import dirname,exists
 from nonebot import get_driver
 import json
@@ -9,15 +10,32 @@ basedir = dirname(__file__)
 numPath=basedir+'/num.txt'
 configPath=basedir+'/config.json'
 requestorPath=basedir+'/requestor.json'
+numPath=basedir+'/num.json'
 max=5
-blackLogPath=basedir+'/.json'
-def readData(path,content={}):
+blackLogPath=basedir+'/blackLog.txt'
+def updateData(path,content:dict={},update=0):
+    if update==0:
+        return content
+    else:
+        if content.get("numControl")==None:
+            content["numControl"]={"useAlgorithm":0, "maxNum": 5, "time": 2, "unit": "h" ,"friend":{"maxNum": 5, "time": 2, "unit": "h" },"group":{"maxNum": 2, "time": 8, "unit": "h" }}
+        else:
+            if list(content["numControl"].keys())==["maxNum", "time", "unit"]:
+                content["numControl"].update({"useAlgorithm":0,"friend":{"maxNum": 5, "time": 2, "unit": "h" },"group":{"maxNum": 2, "time": 8, "unit": "h" }})
+            elif config.get("recipientList")!=[]:
+                return content
+        if content.get("recipientList")==[]:
+            content["recipientList"]=recipientList[:2]
+        with open(path,'w',encoding='utf-8') as fp:
+            json.dump(content,fp,ensure_ascii=False)
+    return content
+def readData(path,content={},update=0)->dict:
     if not exists(path):
         with open(path,'w',encoding='utf-8') as fp:
             json.dump(content,fp,ensure_ascii=False)
     with open(path,'r',encoding='utf-8') as fp:
         data = json.loads(fp.read())
-    return data
+    return updateData(path,data,update)
 def writeData(path,content):
     with open(path,'w',encoding='utf-8') as fp:
         json.dump(content,fp,ensure_ascii=False)
@@ -26,10 +44,10 @@ recipientList=list(get_driver().config.superusers)
 # recipients=str(recipients)[1:-1].replace(' ','').replace("'",'')
 configModel={
     "agreeAutoApprove": { "friend": 1, "group": 0 },
-    "numControl": {"maxNum":5,"time":2,"unit":'h'},
-    "maxViewNum":20,
     "recipientList": recipientList[:2],
     "forwardSet":0,
+    "numControl": {"useAlgorithm":0, "maxNum": 5, "time": 2, "unit": "h" ,"friend":{"maxNum": 5, "time": 2, "unit": "h" },"group":{"maxNum": 2, "time": 8, "unit": "h" }},
+    "maxViewNum": 20,
     "blackDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{}},#"群号":"管理员号，转发给其用来揪出在群里拉人头的人"
     "warnDict":{"friend":{"text":[],"id":[]},"group":{"text":[],"id":[]},"forward":{}},
     "allowAddFriednText":[],
@@ -47,18 +65,11 @@ configModel={
         "warnDict":{"friend":{"status":"警告QQ,手动同意,是否同意"},"group":{"status":"警告群聊,手动同意,是否同意"}}
     }
 }
-config=readData(configPath,configModel)
+config=readData(configPath,configModel,update=1)
 requestorDict=readData(requestorPath,{"friend":{},"group":{}})
-# if not exists(requestorPath):
-#     requestorDict={}
-#     with open(requestorPath,'w',encoding='utf-8') as fp:
-#         json.dump(requestorDict,fp,ensure_ascii=False)
+numDict=readData(numPath,{"friend":{"count":0,"time":str(datetime.now())},"group":{"count":0,"time":str(datetime.now())}})
+for type in numDict.keys():
+    numDict[type]["time"]=datetime.strptime(numDict[type]["time"], "%Y-%m-%d %H:%M:%S.%f")
 
-# with open(requestorPath,'r',encoding='utf-8') as fp:
-#     requestorDict=json.loads(fp.read())
-# blackDictFriend=config["blackDict"]['friend']
-# warnDictFriend=config["warnDict"]['friend']
-# blackDictGroup=config["blackDict"]['group']
-# warnDictGroup=config["warnDict"]['group']
 
 

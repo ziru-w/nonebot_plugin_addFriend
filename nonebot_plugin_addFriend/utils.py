@@ -4,6 +4,7 @@
 
 
 
+import json
 from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Bot,  MessageSegment
 import os
@@ -68,23 +69,41 @@ def getExist(plainCommandtext:str,wholeMessageText:str,argsText:str):
 
  
 
-def read_data(numPath):
+# def read_time(numPath:str)->dict:
+def readTime(numDict:dict)->dict:
     '''读时间'''
-    global num,now,old
-    if not os.path.exists(numPath):
-        now = datetime.datetime.now()
-        with open(numPath, "w", encoding="utf-8") as fp:
-            fp.write('1'+','+str(now))
-    with open(numPath,'r',encoding='utf-8') as fp:
-        data_list=fp.read().split(',')
-        if len(data_list)<2:
-            now = datetime.datetime.now()
-            data_list=['1',str(now)]
-    num=int(data_list[0])
-    old=datetime.datetime.strptime(data_list[1], "%Y-%m-%d %H:%M:%S.%f")
-    now = datetime.datetime.now()
-    return num,now,old
-
+    # global num,now,old
+    # if not os.path.exists(numPath):
+    #     now = datetime.datetime.now()
+    #     with open(numPath, "w", encoding="utf-8") as fp:
+    #         fp.write('1'+','+str(now))
+    # with open(numPath,'r',encoding='utf-8') as fp:
+    #     data_list=fp.read().split(',')
+    #     if len(data_list)<2:
+    #         now = datetime.datetime.now()
+    #         data_list=['1',str(now)]
+    # num=int(data_list[0])sssssssss
+    # old=datetime.datetime.strptime(data[type]["time"], "%Y-%m-%d %H:%M:%S.%f")
+    # now = datetime.datetime.now()
+    for type in numDict.keys():
+        numDict[type]["time"]=datetime.datetime.strptime(numDict[type]["time"], "%Y-%m-%d %H:%M:%S.%f")
+    # now = datetime.datetime.now()
+    return numDict
+def writeTime(numPath,numDict:dict)->dict:
+    '''写时间'''
+    # numDictTemp=copy.deepcopy(numDict)
+    # for type in numDictTemp.keys():
+    #     numDictTemp[type]["time"]=str(numDictTemp[type][key])
+    numDictTemp={"friend":{"count":0,"time":''},"group":{"count":0,"time":''}}
+    for type in numDictTemp.keys():
+        for key in numDictTemp[type].keys():
+            numDictTemp[type][key]=numDict[type][key]
+            if key=='time':
+                numDictTemp[type][key]=str(numDictTemp[type][key])
+    with open(numPath,'w',encoding='utf-8') as fp:
+        json.dump(numDictTemp,fp,ensure_ascii=False)
+    # now = datetime.datetime.now()
+    return numDictTemp
 def writeLog(logPath,logContent):
     with open(logPath, "a", encoding="utf-8") as fp:
         fp.write(logContent)
@@ -116,6 +135,7 @@ def isNormalAdd(config,autoType,addInfo,agreeAutoApprove):
     if agreeAutoApprove==1:
         status='\nqq{}昵称{}添加成功'.format(id,name)
         return agreeAutoApprove,status
+    #当初应该没在agreeAutoApprove上区分警告和非自动同意，状态里区分了
     status="\n昵称{}\n是否同意".format(name)
     return agreeAutoApprove,status
 
@@ -144,18 +164,20 @@ def parseTimeInterval(old='2022-06-21 20:57',now='',op='int'):
         return {'days':days*3600*24*symbol,'seconds':seconds*symbol}
 
 
-def parseTime(numControl:dict,num,old,now):
-    time=parseTimeInterval(old,now)
+def parseTime(numControl:dict,numTypedDict,now):
+    time=parseTimeInterval(numTypedDict["time"],now)
     if numControl['unit']=='h':
         if time/3600>numControl['time']:
-            num=0
+            numTypedDict["count"]=0
     elif numControl['unit']=='m':
         if time/60>numControl['time']:
-            num=0
+            numTypedDict["count"]=0
     else:
         if time/3600/24>numControl['time']:
-            num=0
-    if num>=numControl["maxNum"]:
+            numTypedDict["count"]=0
+    if numTypedDict["count"]>=numControl["maxNum"]:
         return -1
     else:
-        return num+1
+        numTypedDict["count"]=numTypedDict["count"]+1
+        numTypedDict['time']=now
+        return numTypedDict["count"]
