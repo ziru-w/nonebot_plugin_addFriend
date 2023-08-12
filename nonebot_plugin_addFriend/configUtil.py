@@ -22,7 +22,7 @@ def updateData(path,content:dict={},update=0):
         else:
             if list(content["numControl"].keys())==["maxNum", "time", "unit"]:
                 content["numControl"].update({"useAlgorithm":0,"friend":{"maxNum": 5, "time": 2, "unit": "h" },"group":{"maxNum": 2, "time": 8, "unit": "h" }})
-            elif config.get("recipientList")!=[]:
+            elif content.get("recipientList")!=[]:
                 return content
         if content.get("recipientList")==[]:
             content["recipientList"]=recipientList[:2]

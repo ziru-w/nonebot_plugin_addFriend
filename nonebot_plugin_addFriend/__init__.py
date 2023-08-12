@@ -194,7 +194,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     argsText=args.extract_plain_text().strip()
     commandText=getExist("",text,argsText)
     print(commandText)
-    if '群聊' in argsText:
+    if '群' in argsText:
         autoType='group'
         argsText=argsText.replace("群聊","").replace("群","").strip()
     else:
