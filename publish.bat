@@ -1,2 +1,0 @@
-poetry build
-poetry publish
