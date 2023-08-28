@@ -4,11 +4,14 @@
 
 
 
+import copy
 import json
 from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Bot,  MessageSegment
 import os
 import datetime
+
+
 # from nonebot_plugin_txt2img import Txt2Img
 def filterFriend(comment,type,allowTextList):
     if type=='friend':
@@ -22,6 +25,12 @@ def filterFriend(comment,type,allowTextList):
         return True
 
 async def parseMsg(commandText,resMsg,font_size = 32,isText=1):
+    if type(resMsg)==list:
+        temp=''
+        for item in resMsg:
+            temp+=str(item)+'\n'
+        temp=temp.replace("'","").replace('"','')
+        resMsg=temp
     return resMsg[:400]
     # if len(resMsg)<=300 and isText==1:
     #    return resMsg
@@ -85,22 +94,18 @@ def readTime(numDict:dict)->dict:
     # num=int(data_list[0])sssssssss
     # old=datetime.datetime.strptime(data[type]["time"], "%Y-%m-%d %H:%M:%S.%f")
     # now = datetime.datetime.now()
-    for type in numDict.keys():
-        numDict[type]["time"]=datetime.datetime.strptime(numDict[type]["time"], "%Y-%m-%d %H:%M:%S.%f")
+    for id in numDict.keys():
+        for type in numDict[id].keys():
+            numDict[id][type]["time"]=datetime.datetime.strptime(numDict[id][type]["time"], "%Y-%m-%d %H:%M:%S.%f")
     # now = datetime.datetime.now()
     return numDict
-def writeTime(numPath,numDict:dict)->dict:
+def writeTime(numDictPath,numDict:dict)->dict:
     '''写时间'''
-    # numDictTemp=copy.deepcopy(numDict)
-    # for type in numDictTemp.keys():
-    #     numDictTemp[type]["time"]=str(numDictTemp[type][key])
-    numDictTemp={"friend":{"count":0,"time":''},"group":{"count":0,"time":''}}
-    for type in numDictTemp.keys():
-        for key in numDictTemp[type].keys():
-            numDictTemp[type][key]=numDict[type][key]
-            if key=='time':
-                numDictTemp[type][key]=str(numDictTemp[type][key])
-    with open(numPath,'w',encoding='utf-8') as fp:
+    numDictTemp=copy.deepcopy(numDict)
+    for id in numDictTemp.keys():
+        for type in numDictTemp[id].keys():
+            numDictTemp[id][type]["time"]=str(numDictTemp[id][type]["time"])
+    with open(numDictPath,'w',encoding='utf-8') as fp:
         json.dump(numDictTemp,fp,ensure_ascii=False)
     # now = datetime.datetime.now()
     return numDictTemp
