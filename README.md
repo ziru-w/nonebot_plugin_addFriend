@@ -10,6 +10,18 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
     pip install nonebot_plugin_addFriend
 
+单个机器人代码下载方法：
+
+    pip install nonebot_plugin_addFriend==2.4.7
+
+
+
+多个机器人配置原理：
+
+初始配置文件为{}，每多一个机器人触发插件，便会以其id即QQ号为索引在配置中生成该机器人的配置
+
+
+
 总的来说有如下几种主动命令：
 
 /重载配置
@@ -60,7 +72,7 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
 
 
-配置项结构
+配置项模板结构
 
 {
 
