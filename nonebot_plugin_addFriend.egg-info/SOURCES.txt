@@ -1,0 +1,11 @@
+LICENSE
+README.md
+setup.py
+nonebot_plugin_addFriend/__init__.py
+nonebot_plugin_addFriend/configUtil.py
+nonebot_plugin_addFriend/utils.py
+nonebot_plugin_addFriend.egg-info/PKG-INFO
+nonebot_plugin_addFriend.egg-info/SOURCES.txt
+nonebot_plugin_addFriend.egg-info/dependency_links.txt
+nonebot_plugin_addFriend.egg-info/requires.txt
+nonebot_plugin_addFriend.egg-info/top_level.txt

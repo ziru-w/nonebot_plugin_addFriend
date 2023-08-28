@@ -1,0 +1,44 @@
+{
+  "agreeAutoApprove": { "friend": 1, "group": 1 },
+  "recipientList": [],
+  "forwardSet": 1,
+  "numControl": {
+    "maxNum": 10,
+    "time": 2,
+    "unit": "h",
+    "useAlgorithm": 0,
+    "friend": { "maxNum": 5, "time": 2, "unit": "h" },
+    "group": { "maxNum": 2, "time": 8, "unit": "h" }
+  },
+  "maxViewNum": 20,
+  "blackDict": {
+    "friend": { "text": [], "id": [] },
+    "group": { "text": ["通知"], "id": [] },
+    "forward": {}
+  },
+  "warnDict": {
+    "friend": { "text": [], "id": [] },
+    "group": { "text": ["联谊"], "id": [] },
+    "forward": {}
+  },
+  "allowAddFriednText": [],
+  "botName": "我",
+  "friend_msg": {
+    "notice_msg": "请求添加好友,验证消息为",
+    "welcome_msg": "我未知的的朋友啊，很高兴你添加我为qq好友哦！\n同时，如果有疑问，可以发送/help哦"
+  },
+  "group_msg": {
+    "notice_msg": "发送群邀请,验证消息为",
+    "welcome_msg": "我亲爱的的朋友啊，很高兴你邀请我哦！"
+  },
+  "statusDict": {
+    "blackDict": {
+      "friend": { "status": "拉黑QQ,已拒绝,仅作提示" },
+      "group": { "status": "拉黑群聊,已拒绝,仅作提示" }
+    },
+    "warnDict": {
+      "friend": { "status": "警告QQ,手动同意,是否同意" },
+      "group": { "status": "警告群聊,手动同意,是否同意" }
+    }
+  }
+}
