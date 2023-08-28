@@ -308,7 +308,7 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     max=config['numControl'][autoType]['maxNum']
     now=datetime.now()
     # num,now,old=read_data(numPath)
-    if parseTime(config['numControl'][autoType],numDict[autoType],now)!=-1:
+    if parseTime(config['numControl'][autoType],numDict,now)!=-1:
         await reFriendReqNum.send(message='未增满{}人,人数为{}上次添加时间{}'.format(max,numDict[autoType]['count'],now))
     argsText=argsText.replace('为','').strip()
     if argsText.isdigit():
