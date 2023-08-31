@@ -374,6 +374,7 @@ async def _(bot: Bot, event: MessageEvent):
 msgControl=[0,datetime.now(),1]
 @event_preprocessor
 async def sendPrivate(bot:Bot,event: PrivateMessageEvent):
+    check_dict_key_bot_id(config,requestorDict,numDict,bot)
     if config[bot.self_id]['recipientList']==[] or config[bot.self_id]['forwardSet']==0:
         return
     if msgControl[2]==0: #
