@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-addfriend"
-version = "2.5.2"
+version = "2.5.3"
 description = "一个基于NoneBot2的插件，用于处理被请求加QQ好友和QQ群的请求.A plugin based on nonebot2, which is used to process requests to add QQ friends and QQ requests."
 authors = ["ziru-w <77319678+ziru-w@users.noreply.github.com>"]
 license = "MIT"

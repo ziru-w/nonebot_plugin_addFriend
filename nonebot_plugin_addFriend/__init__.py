@@ -353,49 +353,48 @@ async def _(bot: Bot, event: MessageEvent,args: Message = CommandArg()):
     else:
         await addRecipient.finish('不是{}的好友或者格式错误'.format(config[bot.self_id]['botName']))
    
-
-
-
-
-agreeForward = on_command("设置bot私聊转发",block=True,priority=5,permission=SUPERUSER)
-@agreeForward.handle()
-async def _(bot: Bot, event: MessageEvent):
-    check_dict_key_bot_id(config,requestorDict,numDict,bot)
-    # forwardSet=config[bot.self_id]['forwardSet']
-    if config[bot.self_id]['forwardSet']==0:
-        config[bot.self_id]['forwardSet']=1
-        msg='开启成功哦'
-    else:
-        config[bot.self_id]['forwardSet']=0
-        msg='关闭成功哦'
-    writeData(configPath,config)
-    await agreeForward.send(msg)
-
-msgControl=[0,datetime.now(),1]
-@event_preprocessor
-async def sendPrivate(bot:Bot,event: PrivateMessageEvent):
-    check_dict_key_bot_id(config,requestorDict,numDict,bot)
-    if config[bot.self_id]['recipientList']==[] or config[bot.self_id]['forwardSet']==0:
-        return
-    if msgControl[2]==0: #
-        if (datetime.now()-msgControl[1]).seconds>20:
-            msgControl[2]=1
-        else:
-            return
-    msgControl[0]+=1
-    if msgControl[0]/((datetime.now()-msgControl[1]).seconds+1)>10:
-        msgControl[2]=0
-        msgControl[1]=datetime.now()
-        msgControl[0]=0
-    if event.get_user_id()!=config[bot.self_id]['recipientList'][0]:
-        plaintext=event.get_message()
-        await bot.send_private_msg(user_id=int(config[bot.self_id]['recipientList'][0]),message='叮~私聊消息\nqq:{}\n昵称:{}\n消息:{}'.format(event.user_id,event.sender.nickname,plaintext),auto_escape=False)
-
-
-
-
 friendHelp=on_command("加好友帮助",block=True,priority=5,permission=SUPERUSER)
 @friendHelp.handle()
 async def _(bot: Bot, event: MessageEvent):
     msg='重载配置\n更改自动同意,更改最大加数量,更改查看加返回数量,更改加时间,更改加时间单位(群聊、好友)\n同意加,拒绝加,查看加(群聊、好友)\n清理请求表\n重置请求次数(群聊、好友)\n添加请求接收者,删除请求接收者'
     await friendHelp.send(msg)
+
+
+
+# agreeForward = on_command("设置bot私聊转发",block=True,priority=5,permission=SUPERUSER)
+# @agreeForward.handle()
+# async def _(bot: Bot, event: MessageEvent):
+#     check_dict_key_bot_id(config,requestorDict,numDict,bot)
+#     # forwardSet=config[bot.self_id]['forwardSet']
+#     if config[bot.self_id]['forwardSet']==0:
+#         config[bot.self_id]['forwardSet']=1
+#         msg='开启成功哦'
+#     else:
+#         config[bot.self_id]['forwardSet']=0
+#         msg='关闭成功哦'
+#     writeData(configPath,config)
+#     await agreeForward.send(msg)
+
+# msgControl=[0,datetime.now(),1]
+# @event_preprocessor
+# async def sendPrivate(bot:Bot,event: PrivateMessageEvent):
+#     check_dict_key_bot_id(config,requestorDict,numDict,bot)
+#     if config[bot.self_id]['recipientList']==[] or config[bot.self_id]['forwardSet']==0:
+#         return
+#     if msgControl[2]==0: #
+#         if (datetime.now()-msgControl[1]).seconds>20:
+#             msgControl[2]=1
+#         else:
+#             return
+#     msgControl[0]+=1
+#     if msgControl[0]/((datetime.now()-msgControl[1]).seconds+1)>10:
+#         msgControl[2]=0
+#         msgControl[1]=datetime.now()
+#         msgControl[0]=0
+#     if event.get_user_id()!=config[bot.self_id]['recipientList'][0]:
+#         plaintext=event.get_message()
+#         await bot.send_private_msg(user_id=int(config[bot.self_id]['recipientList'][0]),message='叮~私聊消息\nqq:{}\n昵称:{}\n消息:{}'.format(event.user_id,event.sender.nickname,plaintext),auto_escape=False)
+
+
+
+
