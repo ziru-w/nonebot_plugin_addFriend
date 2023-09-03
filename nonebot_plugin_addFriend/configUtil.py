@@ -1,6 +1,7 @@
 
 
 
+import copy
 from datetime import datetime
 from os.path import dirname,exists
 from nonebot import get_driver
@@ -18,13 +19,13 @@ blackLogPath=basedir+'/blackLog.txt'
 def check_dict_key_bot_id(config:dict,requestorDict:dict,numDict:dict,bot: Bot):
     print(1)
     if config.get(bot.self_id)==None:
-        config[bot.self_id]=configModel
+        config[bot.self_id]=copy.deepcopy(configModel)
         writeData(configPath,config)
     if requestorDict.get(bot.self_id)==None:
-        requestorDict[bot.self_id]=requestorDictModel
+        requestorDict[bot.self_id]=copy.deepcopy(requestorDictModel)
         writeData(requestorDictPath,requestorDict)
     if numDict.get(bot.self_id)==None:
-        numDict[bot.self_id]=numDictModel
+        numDict[bot.self_id]=copy.deepcopy(numDictModel)
         for type in numDict[bot.self_id].keys():
             numDict[bot.self_id][type]["time"]=datetime.strptime(numDict[bot.self_id][type]["time"], "%Y-%m-%d %H:%M:%S.%f")
         writeTime(numDictPath,numDict)
