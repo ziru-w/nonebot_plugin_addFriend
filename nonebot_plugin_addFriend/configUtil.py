@@ -72,8 +72,9 @@ numDictModel={"friend":{"count":0,"time":str(datetime.now())},"group":{"count":0
 config=readData(configPath)
 requestorDict=readData(requestorDictPath)
 numDict=readData(numDictPath)
-# for type in numDict.keys():
-#     numDict[type]["time"]=datetime.strptime(numDict[type]["time"], "%Y-%m-%d %H:%M:%S.%f")
+for bot_id in numDict.keys():
+    for type in numDict[bot_id].keys():
+        numDict[bot_id][type]["time"]=datetime.strptime(numDict[bot_id][type]["time"], "%Y-%m-%d %H:%M:%S.%f")
 
 
 

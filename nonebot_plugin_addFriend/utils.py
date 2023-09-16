@@ -147,11 +147,11 @@ def isNormalAdd(config,autoType,addInfo,agreeAutoApprove):
 
 def parseTimeInterval(old='2022-06-21 20:57',now='',op='int'):
     if isinstance(old,str):
-        old=datetime.datetime.strptime(old, "%Y-%m-%d %H:%M")
+        old=datetime.datetime.strptime(old, "%Y-%m-%d %H:%M:%S.%f")
     if now=='':
         now=datetime.datetime.now()
     elif isinstance(now,str):
-        now=datetime.datetime.strptime(now, "%Y-%m-%d %H:%M")
+        now=datetime.datetime.strptime(now, "%Y-%m-%d %H:%M:%S.%f")
     symbol=1
     if now.date()<=old.date():
         temp=datetime.datetime.strptime(str(now.date()), "%Y-%m-%d")
