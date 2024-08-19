@@ -56,7 +56,11 @@ async def _(bot: Bot, event: RequestEvent):
         autoType='group'
         agreeAutoApprove=config[bot.self_id]['agreeAutoApprove'][autoType]
         await sleep(0.5)
-        addInfo=await bot.get_group_info(group_id=int(id),no_cache=True)
+        try:
+            addInfo=await bot.get_group_info(group_id=event.group_id,no_cache=True)
+        except Exception as res:
+            print("nonebot_plugin_addFriend/init.py61行\n",res)
+            addInfo={"member_count":0,"max_member_count":0,"group_name":"略过","group_id":event.group_id}
         print(autoType,addInfo,agreeAutoApprove)
         msg='群号'+id+'，'+event.get_user_id()+notice_msg+event.comment+'\n时间:{}'.format(time)
         if addInfo["member_count"]!=0:
