@@ -6,13 +6,9 @@ A plug-in based on nonebot2, which is used to process the request to add QQ frie
 
 ## 如果版本更新请按模板手动配置config.json文件中的新增项和键名更改项，如果不介意原来配置初始化，可以删掉重新生成。修改config.json 时，如果使用vscode的话推荐使用prettier插件格式化，自带的也行
 
-下载方法(做得粗糙，可能有bug，不过应该也没bug了):
+下载方法:
 
     pip install nonebot_plugin_addFriend
-
-单个机器人代码下载方法(旧版，大概没bug)：
-
-    pip install nonebot_plugin_addFriend==2.4.7
 
 
 
